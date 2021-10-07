@@ -3,6 +3,7 @@ import Navigation from './components/Navigation'
 import { Route, BrowserRouter as Router } from "react-router-dom"
 import Home from './Pages/Home'
 import About from './Pages/About'
+import CoinDetail from './Pages/Coin/CoinDetail'
 
 function App() {
 
@@ -11,7 +12,8 @@ function App() {
       <Navigation></Navigation>
       <Router>
         <Route path="/" exact component={Home} />
-        <Route path="/About" component={About} />
+        <Route path="/about" component={About} />
+        <Route path="/coins/:coinId" component={CoinDetail} />
 
       </Router>
     </div>
