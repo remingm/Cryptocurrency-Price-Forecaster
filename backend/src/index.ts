@@ -1,12 +1,10 @@
-import express from "express";
+import './pre-start'; // Must be the first import
+import app from '@server';
+import logger from '@shared/Logger';
 
-const app = express()
-const port = 3000
 
-app.get('/', (req, res) => {
-  res.send('Hello World! Copied from https://developer.okta.com/blog/2018/11/15/node-express-typescript')
-})
-
+// Start the server
+const port = Number(process.env.PORT || 3000);
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}.`)
-})
+    logger.info('Express server started on port: ' + port);
+});
