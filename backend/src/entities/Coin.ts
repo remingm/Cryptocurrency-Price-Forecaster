@@ -1,12 +1,12 @@
-export interface IUser {
+export interface ICoin {
   email: string;
   password: string;
 }
 
-class User implements IUser {
+class Coin implements ICoin {
   public email: string;
   public password: string;
   public auth_token: string;
 }
 
-export default User;
+export default Coin;
