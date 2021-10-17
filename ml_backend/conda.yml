@@ -225,5 +225,4 @@ dependencies:
     - ta==0.7.0
     - tinydb==4.5.2
     - tinydb-serialization==2.1.0
-    - tinymongo==0.2.0
     - tomli==1.2.1
