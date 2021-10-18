@@ -11,6 +11,16 @@ db.forecasts contains BTC and ETH forecasts written by the ML backend. Intended 
 
 Mongo is now accessible at the default `localhost:2017`.
 
+### 4. Show the DB
+Run `mongo` to enter the mongo shell. Then, from within the mongo shell, run:
+
+`use db_name`
+
+then to print db results similar to as shown below, run:
+
+`db.forecasts.find({"symbol": "ETH-USD", "period": "1h"}).pretty()`
+
+
 ## Abbreviated example of each document in db.forecasts
 ```
 {
