@@ -1,4 +1,5 @@
 import express from "express";
+import dotenv from "dotenv";
 import { Router } from "express";
 import compression from "compression"; // compresses requests
 import session from "express-session";
@@ -11,6 +12,9 @@ import mongoose from "mongoose";
 import passport from "passport";
 import bluebird from "bluebird";
 import { MONGODB_URI, SESSION_SECRET } from "./util/secrets";
+
+// Load config
+dotenv.config({ path: "./config/config.env"});
 
 // Controllers (route handlers)
 import * as homeController from "./controllers/home";
