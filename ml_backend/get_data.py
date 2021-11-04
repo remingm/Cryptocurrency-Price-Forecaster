@@ -14,6 +14,7 @@ def get_usd_markets(exchange):
         if s.split("/")[1] == "USD":
             usd_pairs.add(s)
     print(len(usd_pairs), "USD pairs available.")
+    # todo filter out non crypto pairs and usdt, other currencies, EUR, AUD, etc
     return usd_pairs
 
 
