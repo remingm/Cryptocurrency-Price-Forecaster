@@ -14,10 +14,11 @@ if __name__ == "__main__":
                 print(symbol, timeframe)
 
                 # volume filter. scaler is failing on coins with low vol 1m
-                try:
-                    scaled, scaler = generate_factors(df, handle_no_volume=False)
-                    print("Success", symbol, timeframe)
-                    plot_df(df, symbol + "-success", timeframe)
-                except:
+                scaled, scaler = generate_factors(df, ignore_low_volume_coins=True)
+                if scaled == False:
                     print("fail", symbol, timeframe)
-                    plot_df(df, symbol + "-fail", timeframe)
+                    # plot_df(df, symbol + "-fail", timeframe)
+                    continue
+                else:
+                    print("Success", symbol, timeframe)
+                    # plot_df(df, symbol + "-success", timeframe)

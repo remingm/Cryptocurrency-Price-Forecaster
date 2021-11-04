@@ -35,18 +35,21 @@ def get_return_lags(df):
     return covars, df
 
 
-def generate_factors(df, handle_no_volume=False):
-    _, df = get_return_lags(df)
+def generate_factors(df, ignore_low_volume_coins=True):
+    covars, df = get_return_lags(df)
     covars, df = get_ta(df)
 
     mvf = MissingValuesFiller()
     covars = mvf.transform(covars)
 
-    if handle_no_volume:
+    if not ignore_low_volume_coins:
         # Convert to DF to remove inf and NaN. Will only happen for coins with periods of 0 volume.
         df = covars.pd_dataframe().replace([np.inf, -np.inf], np.nan)
         df = df.interpolate(imit_direction="both")
         covars = TimeSeries.from_dataframe(df)
+    elif np.isinf(df).values.sum() > 0:
+        # If coin has a candle with no volume, don't spend compute on it.
+        return False, False
 
     # Scale target
     scaler = Scaler()
