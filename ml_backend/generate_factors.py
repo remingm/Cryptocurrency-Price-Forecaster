@@ -57,14 +57,3 @@ def generate_factors(df, ignore_low_volume_coins=True):
     scaled = scaler.fit_transform(covars)
     scaled.describe()
     return scaled, scaler
-
-
-# todo train module
-# target_var = 'close'
-# target_var_idx = scaled.columns.get_loc(target_var)
-#
-# split = int(len(scaled) * .1)  # todo split param.
-# train, val = scaled[:-split], scaled[-split:]
-# train_covar, val_covar = scaled_covars[:-split], scaled_covars[-split:]
-# train[target_var].plot(label='training')
-# val[target_var].plot(label='validation')
