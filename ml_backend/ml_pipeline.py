@@ -1,9 +1,15 @@
+import time
 from get_data import get_usd_markets, get_ohlcv_series, exchange, plot_df
 from generate_factors import generate_factors
+from training import train_pipeline
+from output import output_pipeline
 
-if __name__ == "__main__":
+target_var = "close"
+
+
+def main_ml_loop():
     # todo schedule each timeframe pred for timeframe len. Spawn thread? sleep?
-    usd_pairs = get_usd_markets(exchange)
+    usd_pairs = get_usd_markets(exchange).intersection(["BTC/USD", "ETH/USD"])
     timeframes = exchange.timeframes.keys()
     for timeframe in timeframes:
         if "w" not in timeframe:
@@ -20,5 +26,25 @@ if __name__ == "__main__":
                     # plot_df(df, symbol + "-fail", timeframe)
                     continue
                 else:
+                    # todo logging
                     print("Success", symbol, timeframe)
                     # plot_df(df, symbol + "-success", timeframe)
+                    prediction, backtest_mape = train_pipeline(
+                        scaled, target_var=target_var, validate_model=False
+                    )
+                    output_pipeline(
+                        symbol,
+                        timeframe,
+                        scaler,
+                        scaled,
+                        prediction,
+                        target_var,
+                        df,
+                        backtest_mape,
+                    )
+
+
+if __name__ == "__main__":
+    while True:
+        main_ml_loop()
+        time.sleep(60 * 60)
