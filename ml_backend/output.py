@@ -2,6 +2,7 @@ import pymongo
 import pprint
 import json
 import pandas as pd
+import os
 
 
 def reverse_transform(scaler, scaled, prediction, target_var):
@@ -43,9 +44,12 @@ def format_json(symbol, period, past_close, prediction, backtest_mape):
 
 def write_to_db(forecasts):
     # Write forecasts to mongo
+    if "MONGO_HOST" not in os.environ.keys():
+        os.environ["MONGO_HOST"] = "localhost"
+    mongo_host = os.environ["MONGO_HOST"]
 
-    client = pymongo.MongoClient("localhost", 27017)
-    db = client.db_name
+    client = pymongo.MongoClient(mongo_host, 27017)
+    db = client.db_name  # todo new db name
 
     for f in forecasts:
         db.forecasts.delete_many({"symbol": f["symbol"], "period": f["period"]})
@@ -63,13 +67,18 @@ def write_to_db(forecasts):
 
 
 # todo create coin object to store all these vars as fields
-def output_pipeline(
-    symbol, period, scaler, scaled, prediction, target_var, df, backtest_mape
-):
-    past_close, prediction = reverse_transform(scaler, scaled, prediction, target_var)
-    past_close, prediction = format_timestamp_index(past_close, df, prediction)
-    return_dict = format_json(symbol, period, past_close, prediction, backtest_mape)
+def output_pipeline(coin):
+    past_close, prediction = reverse_transform(
+        coin.scaler, coin.scaled, coin.prediction, coin.target_var
+    )
+    coin.past_close, coin.prediction = format_timestamp_index(
+        past_close, coin.df, prediction
+    )
+    coin.return_dict = format_json(
+        coin.symbol, coin.period, coin.past_close, coin.prediction, coin.backtest_mape
+    )
     try:
-        write_to_db([return_dict])
+        write_to_db([coin.return_dict])
     except:
         print("Error writing to mongo")
+    return coin

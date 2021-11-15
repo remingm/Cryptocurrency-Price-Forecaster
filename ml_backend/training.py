@@ -60,15 +60,17 @@ def backtest_model(model, train, scaled, target_var, target_var_idx):
     return backtest_mape
 
 
-def predict(model, scaled, target_var):
+def predict(model, scaled, target_var, plot=False):
     # Predict future
     pred_len = min(len(scaled) // 10, 72)
     prediction = model.predict(
         n=pred_len,
         # series=scaled,
     )
-    scaled[target_var].plot(label="Past")
-    prediction[target_var].plot(label="Forecast")
+
+    if plot:
+        scaled[target_var].plot(label="Past")
+        prediction[target_var].plot(label="Forecast")
 
     return prediction
 
