@@ -10,7 +10,7 @@
 #### To do: 
 - config.yml for coins and periods
 
-###There are two options for installing: Docker or Conda.
+There are two options for installing: Docker or Conda.
 
 ## Docker Compose
 This starts the ML backend and Mongo at port 27017. The ML backend will continuously populate the Mongo DB with forecasts. Run all commands from this directory.
@@ -23,7 +23,7 @@ Or run in background:
 When done, stop and remove containers:   
 `docker-compose down`
 
-####Extra commands:
+**Extra commands:**
 
 Stop but keep containers (saves build time):  
 `docker-compose stop`  
