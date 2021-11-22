@@ -1,19 +1,20 @@
-import logger from "./logger";
+import logger from "../util/logger";
 import dotenv from "dotenv";
 import fs from "fs";
+import path from "path";
 
-if (fs.existsSync(".env")) {
-  logger.debug("Using .env file to supply config environment variables");
-  dotenv.config({ path: ".env" });
+if (fs.existsSync(path.resolve(__dirname, "../.env") )) {
+    logger.debug("Using .env file to supply config environment variables");
+    dotenv.config({ path: path.resolve(__dirname, "../.env")});
 } else {
-  logger.debug(
-    "Using .env.example file to supply config environment variables"
-  );
-  dotenv.config({ path: ".env.example" }); // you can delete this after you create your own .env file!
+    logger.warn("No environment file to load. Will use currently set env vars.");
 }
-export const ENVIRONMENT = process.env.NODE_ENV;
+
+// NODE_ENV
+export const ENVIRONMENT = process.env["NODE_ENV"];
 const prod = ENVIRONMENT === "production"; // Anything else is treated as 'dev'
 
+// SESSION_SECRET
 export const SESSION_SECRET = process.env["SESSION_SECRET"];
 export const MONGODB_URI = prod
   ? process.env["MONGODB_URI"]
@@ -24,6 +25,7 @@ if (!SESSION_SECRET) {
   process.exit(1);
 }
 
+// MONGO_DB_URI
 if (!MONGODB_URI) {
   if (prod) {
     logger.error(
