@@ -1,10 +1,11 @@
 import errorHandler from "errorhandler";
 import app from "./app";
+import { ENVIRONMENT } from "./config/config";
 
 /**
  * Error Handler. Provides full stack
  */
-if (process.env.NODE_ENV === "development") {
+if (ENVIRONMENT === "development") {
   app.use(errorHandler());
 }
 

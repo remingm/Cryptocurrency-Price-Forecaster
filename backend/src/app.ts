@@ -1,5 +1,4 @@
 import express from "express";
-import dotenv from "dotenv";
 import { Router } from "express";
 import compression from "compression"; // compresses requests
 import session from "express-session";
@@ -11,10 +10,7 @@ import path from "path";
 import mongoose from "mongoose";
 import passport from "passport";
 import bluebird from "bluebird";
-import { MONGODB_URI, SESSION_SECRET } from "./util/secrets";
-
-// Load config
-dotenv.config({ path: "./config/config.env"});
+import { MONGODB_URI, SESSION_SECRET } from "./config/config";
 
 // Controllers (route handlers)
 import * as homeController from "./controllers/home";
@@ -36,8 +32,7 @@ mongoose.Promise = bluebird;
 mongoose
   .connect(mongoUrl, {
     useNewUrlParser: true,
-    useCreateIndex: true,
-    useUnifiedTopology: true,
+    useCreateIndex: true
   })
   .then(() => {
     /** ready to use. The `mongoose.connect()` promise resolves to undefined. */
