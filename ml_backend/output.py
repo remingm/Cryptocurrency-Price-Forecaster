@@ -55,15 +55,17 @@ def write_to_db(forecasts):
         db.forecasts.delete_many({"symbol": f["symbol"], "period": f["period"]})
         db.forecasts.insert_one(f)
 
-    cursor = db.forecasts.find({})
-    for c in cursor:
-        print(c["symbol"])
+    # Debugging
+    if False:
+        cursor = db.forecasts.find({})
+        for c in cursor:
+            print(c["symbol"], "is in db.forecasts")
 
-    cursor = db.forecasts.find()
+        cursor = db.forecasts.find()
 
-    # pprint.pprint(cursor)
-    for c in cursor:
-        pprint.pprint(c.keys())
+        # pprint.pprint(cursor)
+        for c in cursor:
+            pprint.pprint(c.keys())
 
 
 # todo create coin object to store all these vars as fields
@@ -79,6 +81,7 @@ def output_pipeline(coin):
     )
     try:
         write_to_db([coin.return_dict])
+        print("Success")
     except:
         print("Error writing to mongo")
     return coin

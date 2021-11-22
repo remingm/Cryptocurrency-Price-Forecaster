@@ -1,52 +1,34 @@
+import time
+import datetime
 from get_data import get_usd_markets, get_ohlcv_series, exchange, plot_df
 from generate_factors import generate_factors
 from training import train_pipeline
 from output import output_pipeline
-import datetime
+from coin import Coin
 
+# todo config.yml
+COINS = [
+    "BTC/USD",
+    "ETH/USD",
+    "ADA/USD",
+    "DOGE/USD",
+    "LTC/USD",
+    "DOT/USD",
+    "MANA/USD",
+    "SOL/USD",
+    "DOGE/USD",
+    "ALGO/USD",
+    "XMR/USD",
+    "XRP/USD",
+    "BCH/USD",
+]
 
-class Coin:
-    def __init__(self, symbol, period, target_var):
-        self.symbol = symbol.replace("/", "-")
-        self.original_symbol = symbol
-        self.period = period
-        self.target_var = target_var
-        self.scaler = None
-        self.scaled = None
-        self.prediction = None
-        self.df = None
-        self.backtest_mape = None
-        self.last_compute = None
-
-    def check_compute_time(self):
-        convserion_dict = {
-            "1m": 1,
-            "5m": 5,
-            "15m": 15,
-            "30m": 30,
-            "1h": 60,
-            "4h": 4 * 60,
-            "1d": 60 * 24,
-            "1w": 7 * 24 * 60,
-            "2w": 14 * 24 * 60,
-        }
-        if self.last_compute == None:
-            return True
-        delta = datetime.timedelta(minutes=convserion_dict[self.period])
-        return datetime.datetime.utcnow() - self.last_compute >= delta
-
-    def __str__(self):
-        return self.symbol + "-" + self.period
-
-    def __eq__(self, other):
-        if isinstance(other, Coin):
-            return self.symbol == other.symbol and self.period == other.period
-
-    def __hash__(self):
-        return hash(self.__str__())
+TIMEPERIODS = ["1h", "4h", "1d"]
+SLEEP_TIME = 60 * 15
 
 
 def ml_pipeline(coin):
+    print("Getting data for", coin)
     df = get_ohlcv_series(exchange, coin.original_symbol, coin.period)
 
     coin.df = df
@@ -54,52 +36,37 @@ def ml_pipeline(coin):
     # print(coin.symbol, coin.period)
 
     # volume filter. scaler is failing on coins with low vol 1m
+    print("Generating factors for", coin)
     coin.scaled, coin.scaler = generate_factors(coin.df, ignore_low_volume_coins=True)
     if coin.scaled == False:
         print("fail", coin.symbol, coin.period)
-        # plot_df(df, symbol + "-fail", period)
     else:
         # todo logging
         print("Success", coin.symbol, coin.period)
-        # plot_df(df, symbol + "-success", period)
+        print("Training model for", coin)
         prediction, backtest_mape = train_pipeline(
             coin.scaled, target_var=coin.target_var, validate_model=False
         )
         coin.backtest_mape = backtest_mape
         coin.prediction = prediction
         coin.last_compute = datetime.datetime.utcnow()
+        print("Running output pipeline for", coin)
         coin = output_pipeline(coin)
     return coin
 
 
 def make_coins_set():
     coins = set()
-    usd_pairs = get_usd_markets(exchange).intersection(
-        [
-            "BTC/USD",
-            "ETH/USD",
-            "ADA/USD",
-            "DOGE/USD",
-            "LTC/USD",
-            "DOT/USD",
-            "MANA/USD",
-            "SOL/USD",
-            "DOGE/USD",
-            "ALGO/USD",
-            "XMR/USD",
-            "XRP/USD",
-            "BCH/USD",
-        ]
-    )
+    usd_pairs = get_usd_markets(exchange).intersection(COINS)
     periods = exchange.timeframes.keys()
-    for period in set(periods).intersection(["1h", "4h", "1d"]):
+    for period in set(periods).intersection(TIMEPERIODS):
         for symbol in usd_pairs:
             coin = Coin(symbol, period, target_var="close")
             coins.add(coin)
     return coins
 
 
-def main_ml_loop(coins):
+def main_ml_loop(coins, sleep_time):
     processed = set()
     while len(coins) > 0:
         coin = coins.pop()
@@ -111,10 +78,15 @@ def main_ml_loop(coins):
 
         processed.add(coin)
 
+        # Sleep if all coins have been predicted
+        if len(coins) == 0:
+            print("Sleeping")
+            time.sleep(SLEEP_TIME)
+
     return processed
 
 
 if __name__ == "__main__":
     coins = make_coins_set()
     while True:
-        coins = main_ml_loop(coins)
+        coins = main_ml_loop(coins, SLEEP_TIME)

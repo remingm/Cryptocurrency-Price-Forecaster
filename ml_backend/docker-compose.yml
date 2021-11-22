@@ -10,7 +10,7 @@ services:
     environment:
       MONGO_HOST: mongo
   mongo:
-    image: mongo:latest
+    image: mongo:4.4
     volumes:
       - mongo-data:/data/db
     ports:
