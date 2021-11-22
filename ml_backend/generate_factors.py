@@ -15,7 +15,6 @@ def get_ta(df):
     ts_ta = TimeSeries.from_dataframe(
         df_ta, fill_missing_dates=True
     )  # time_col="UTC timestamp")
-    print(df_ta.columns)
 
     return ts_ta, df
 
