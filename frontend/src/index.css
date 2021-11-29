@@ -2,3 +2,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI",
+      "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+      "Helvetica Neue", sans-serif @apply leading-tight;
+  }
+}
+
+@layer components {
+  .btn-indigo {
+    @apply cursor-pointer relative bg-indigo-700 text-white font-semibold text-sm leading-3 border-solid border border-indigo-700 rounded-md m-0 px-3 py-2.5 hover:bg-indigo-800 active:bg-indigo-700 transition-colors;
+  }
+  .btn {
+    @apply cursor-pointer relative font-semibold text-sm leading-3 border-solid border border-indigo-700 hover:border-0 rounded-md m-0 px-3 py-2.5 active:border transition-opacity;
+  }
+}
