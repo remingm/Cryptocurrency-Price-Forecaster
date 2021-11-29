@@ -1,5 +1,5 @@
 include: 
-  - template: ./.ci-templates.yml
+  - template: ./templates/.ci-templates.yml
   - template: AWS/Deploy-ECS.gitlab-ci.yml  
 
 stages:
