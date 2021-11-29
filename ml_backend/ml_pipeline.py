@@ -23,7 +23,7 @@ COINS = [
     "BCH/USD",
 ]
 
-TIMEPERIODS = ["1h", "4h", "1d"]
+TIMEPERIODS = ["1d"]
 SLEEP_TIME = 60 * 15
 
 
@@ -37,7 +37,9 @@ def ml_pipeline(coin):
 
     # volume filter. scaler is failing on coins with low vol 1m
     print("Generating factors for", coin)
-    coin.scaled, coin.scaler = generate_factors(coin.df, ignore_low_volume_coins=True)
+    coin.scaled, coin.scaler = generate_factors(
+        coin.df, coin.target_var, ignore_low_volume_coins=True
+    )
     if coin.scaled == False:
         print("fail", coin.symbol, coin.period)
     else:
@@ -55,13 +57,13 @@ def ml_pipeline(coin):
     return coin
 
 
-def make_coins_set():
+def make_coins_set(COINS, TIMEPERIODS, target_var="close"):
     coins = set()
     usd_pairs = get_usd_markets(exchange).intersection(COINS)
     periods = exchange.timeframes.keys()
     for period in set(periods).intersection(TIMEPERIODS):
         for symbol in usd_pairs:
-            coin = Coin(symbol, period, target_var="close")
+            coin = Coin(symbol, period, target_var=target_var)
             coins.add(coin)
     return coins
 
@@ -87,6 +89,6 @@ def main_ml_loop(coins, sleep_time):
 
 
 if __name__ == "__main__":
-    coins = make_coins_set()
+    coins = make_coins_set(COINS, TIMEPERIODS, target_var="close")
     while True:
         coins = main_ml_loop(coins, SLEEP_TIME)
