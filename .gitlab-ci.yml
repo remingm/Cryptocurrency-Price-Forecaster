@@ -3,7 +3,7 @@ include:
   - template: 'AWS/Deploy-ECS.gitlab-ci.yml'  
 
 stages:
-  - build-image
+  - build
   # - test
   # - deploy
   
