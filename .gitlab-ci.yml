@@ -1,10 +1,55 @@
+include: 
+  - template: ./.ci-templates.yml
+  - template: AWS/Deploy-ECS.gitlab-ci.yml  
+
+stages:
+  - build-image
+  # - test
+  # - deploy
+  
 default:
   image: ruby:2.7.4
+
+variables:
+  var: value
+
+.backend-variables:
+  variables:
+    var: value
+    CI_AWS_ECS_CLUSTER: backend-jams
+    CI_AWS_ECS_SERVICE: sample-app-service
+    CI_AWS_ECS_TASK_DEFINITION: first-run-task-definition:1  
+
+.ml-backend-variables:
+  variables: 
+    var: value   
+    CI_AWS_ECS_CLUSTER: backend-jams
+    CI_AWS_ECS_SERVICE: sample-app-service
+    CI_AWS_ECS_TASK_DEFINITION: first-run-task-definition:1  
+
+.frontend-variables:
+  variables: 
+    var: value   
   
-build-docker:
-  stage: build
+.build-docker-push-ecr:
   script:
     - echo "Hello, $GITLAB_USER_LOGIN!"
   interruptible: true     
   only:
     - main
+    - stonk-pix.backend-CFT-deploy
+
+backend-build-image:
+  extends:
+    - .backend-variables
+    - .build-docker-push-ecr 
+  stage: build-image
+  only:
+    - main
+    - stonk-pix.backend-CFT-deploy
+
+# ml-build-image:
+#   extends:
+#     - .ml-backend-variables
+#     - .build-docker-push-ecr 
+#   stage: build-image
