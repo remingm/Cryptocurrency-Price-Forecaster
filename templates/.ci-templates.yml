@@ -34,7 +34,7 @@ variables:
     - docker --version
   script:
     - docker build -t $IMAGE_REPOSITORY_URL/$APP_NAME:$CI_PIPELINE_IID ./backend
-    - aws ecr get-login-password | docker login --username AWS --password-stdin $IMAGE_REPOSITORY_URL
+    - aws ecr get-login-password | docker login --username AWS --password-stdin $IMAGE_REPOSITORY_URL --region $AWS_DEFAULT_REGION
     - docker push $IMAGE_REPOSITORY_URL/$APP_NAME:$CI_PIPELINE_IID   
   interruptible: true     
   only:
