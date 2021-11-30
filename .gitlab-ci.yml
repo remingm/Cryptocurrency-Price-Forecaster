@@ -1,23 +1,16 @@
 include: 
   - 'templates/.ci-templates.yml'
-  - template: 'AWS/Deploy-ECS.gitlab-ci.yml'  
 
 stages:
-  - build
+  - build-image-push-ecr
   # - test
   # - deploy
-  
-default:
-  image: ruby:2.7.4
 
-variables:
-  var: value
-
-backend-build-image:
+backend-build-image-push-ecr:
+  stage: build-image-push-ecr
   extends:
     - .backend-variables
-    - .build-docker-push-ecr 
-  stage: build-image
+    - .build-image-push-ecr 
   only:
     - main
     - stonk-pix.backend-CFT-deploy
