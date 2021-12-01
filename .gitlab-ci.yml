@@ -5,7 +5,6 @@ stages:
     - build-image-push-ecr
     - deploy
 
-
 backend-build-image-push-ecr:
   stage: build-image-push-ecr
   extends:
@@ -27,3 +26,5 @@ backend-deploy:
   extends:
     - .backend-variables
     - .deploy 
+  only:
+    - main
