@@ -1,25 +1,22 @@
 variables:
   IMAGE_REPOSITORY_URL: 525599889582.dkr.ecr.us-west-2.amazonaws.com
-  APP_NAME: stonk-pix-backend
   DOCKER_HOST: tcp://docker:2375
   
 .backend-variables:
   variables:
-    var: value
-    CI_AWS_ECS_CLUSTER: backend-jams
-    CI_AWS_ECS_SERVICE: sample-app-service
-    CI_AWS_ECS_TASK_DEFINITION: first-run-task-definition:1
+    APP_NAME: stonk-pix-backend
+    DOCKER_DIRECTORY_PATH: backend
 
 .ml-backend-variables:
   variables: 
-    var: value   
-    CI_AWS_ECS_CLUSTER: backend-jams
-    CI_AWS_ECS_SERVICE: sample-app-service
-    CI_AWS_ECS_TASK_DEFINITION: first-run-task-definition:1  
+    APP_NAME: stonk-pix-ml-backend
+    DOCKER_DIRECTORY_PATH: ml_backend 
 
 .frontend-variables:
   variables: 
-    var: value   
+    APP_NAME: stonk-pix-frontend
+    DOCKER_DIRECTORY_PATH: frontend
+
   
 .build-image-push-ecr:
   image: 
@@ -32,7 +29,7 @@ variables:
     - aws --version
     - docker --version
   script:
-    - docker build -t $IMAGE_REPOSITORY_URL/$APP_NAME:$CI_PIPELINE_IID ./backend
+    - docker build -t $IMAGE_REPOSITORY_URL/$APP_NAME:$CI_PIPELINE_IID ./$DOCKER_DIRECTORY_PATH
     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $IMAGE_REPOSITORY_URL
     - docker push $IMAGE_REPOSITORY_URL/$APP_NAME:$CI_PIPELINE_IID   
   interruptible: true     
