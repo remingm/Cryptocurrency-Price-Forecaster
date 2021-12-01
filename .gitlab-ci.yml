@@ -12,7 +12,6 @@ backend-build-image-push-ecr:
     - .build-image-push-ecr 
   only:
     - main
-    - stonk-pix.backend-CFT-deploy
 
 ml-build-image-push-ecr:
   extends:
@@ -21,5 +20,4 @@ ml-build-image-push-ecr:
   stage: build-image-push-ecr
   only:
     - main
-    - stonk-pix.backend-CFT-deploy
 
