@@ -3,7 +3,6 @@ include:
 
 stages:
   - build-image-push-ecr
-  - deploy 
 
 backend-build-image-push-ecr:
   stage: build-image-push-ecr
