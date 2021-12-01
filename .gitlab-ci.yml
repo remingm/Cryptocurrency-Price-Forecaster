@@ -1,8 +1,9 @@
 include: 
-  - 'templates/.ci-templates.yml'
+  - 'deployment/templates/.ci-templates.yml'
 
 stages:
-  - build-image-push-ecr
+    - deploy
+    #- build-image-push-ecr
 
 backend-build-image-push-ecr:
   stage: build-image-push-ecr
@@ -20,3 +21,8 @@ ml-build-image-push-ecr:
   only:
     - main
 
+backend-deploy:
+  stage: deploy
+  extends:
+    - .backend-variables
+    - .deploy 
