@@ -6,6 +6,9 @@ where:
   stack-name   - the stack name
   aws-cli-opts - extra options passed directly to create-stack/update-stack
 "
+echo "****"
+pwd
+echo "****"
 
 if [ "$1" == "-h" ] || [ "$1" == "--help" ] || [ "$1" == "help" ] || [ "$1" == "usage" ] ; then
   echo "$usage"
