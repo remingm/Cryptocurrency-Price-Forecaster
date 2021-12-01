@@ -43,17 +43,3 @@ variables:
     - aws --version
   script:
     - sh deployment/scripts/create-or-update-stacks.sh us-west-2 jams-stack --template-body file://backend/infrastructure/CFT.yml --capabilities CAPABILITY_NAMED_IAM
-
-
-#     where:
-#   region       - the AWS region
-#   stack-name   - the stack name
-#   aws-cli-opts - extra options passed directly to create-stack/update-stack
-# "
-
-
-
-# aws cloudformation create-stack --stack-name myteststack --template-body file://backend/infrastructure/CFT.yml --parameters ParameterKey=KeyPairName,ParameterValue=TestKey ParameterKey=SubnetIDs,ParameterValue=SubnetID1\\,SubnetID2
-# aws cloudformation create-stack --stack-name myteststack --template-body file://backend/infrastructure/CFT.yml 
-
-# param keys needed

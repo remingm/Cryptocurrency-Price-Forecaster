@@ -2,24 +2,25 @@ include:
   - 'deployment/templates/.ci-templates.yml'
 
 stages:
+    - build-image-push-ecr
     - deploy
-    #- build-image-push-ecr
 
-# backend-build-image-push-ecr:
-#   stage: build-image-push-ecr
-#   extends:
-#     - .backend-variables
-#     - .build-image-push-ecr 
-#   only:
-#     - main
 
-# ml-build-image-push-ecr:
-#   extends:
-#     - .ml-backend-variables
-#     - .build-image-push-ecr
-#   stage: build-image-push-ecr
-#   only:
-#     - main
+backend-build-image-push-ecr:
+  stage: build-image-push-ecr
+  extends:
+    - .backend-variables
+    - .build-image-push-ecr 
+  only:
+    - main
+
+ml-build-image-push-ecr:
+  extends:
+    - .ml-backend-variables
+    - .build-image-push-ecr
+  stage: build-image-push-ecr
+  only:
+    - main
 
 backend-deploy:
   stage: deploy
