@@ -2,7 +2,6 @@ variables:
   IMAGE_REPOSITORY_URL: 525599889582.dkr.ecr.us-west-2.amazonaws.com
   APP_NAME: stonk-pix-backend
   DOCKER_HOST: tcp://docker:2375
-  AWS_DEFAULT_REGION: us-west-2
   
 .backend-variables:
   variables:
