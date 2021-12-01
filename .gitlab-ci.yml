@@ -3,8 +3,7 @@ include:
 
 stages:
   - build-image-push-ecr
-  # - test
-  # - deploy
+  - deploy 
 
 backend-build-image-push-ecr:
   stage: build-image-push-ecr
@@ -15,8 +14,12 @@ backend-build-image-push-ecr:
     - main
     - stonk-pix.backend-CFT-deploy
 
-# ml-build-image:
-#   extends:
-#     - .ml-backend-variables
-#     - .build-docker-push-ecr 
-#   stage: build-image
+ml-build-image-push-ecr:
+  extends:
+    - .ml-backend-variables
+    - .build-image-push-ecr
+  stage: build-image
+  only:
+    - main
+    - stonk-pix.backend-CFT-deploy
+

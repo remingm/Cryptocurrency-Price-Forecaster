@@ -17,7 +17,6 @@ variables:
     APP_NAME: stonk-pix-frontend
     DOCKER_DIRECTORY_PATH: frontend
 
-  
 .build-image-push-ecr:
   image: 
     name: amazon/aws-cli
@@ -35,4 +34,3 @@ variables:
   interruptible: true     
   only:
     - main
-    - stonk-pix.backend-CFT-deploy
