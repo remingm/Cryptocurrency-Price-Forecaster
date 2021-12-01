@@ -18,7 +18,7 @@ ml-build-image-push-ecr:
   extends:
     - .ml-backend-variables
     - .build-image-push-ecr
-  stage: build-image
+  stage: build-image-push-ecr
   only:
     - main
     - stonk-pix.backend-CFT-deploy
