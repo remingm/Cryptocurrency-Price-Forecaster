@@ -20,6 +20,17 @@ Parameters:
     Type: Number
     Default: '1'
     Description: Maximum number of instances that can be launched in your ECS cluster.
+  ImageUrl: 
+    Type: String
+    Default: 525599889582.dkr.ecr.us-west-2.amazonaws.com/stonk-pix-backend:latest
+    Description: Link to the container image in ECR being used by the ECS task definition.
+  Environment:
+    Type: String
+    Default: int
+    AllowedValues:
+      - int
+      - prod
+    Description: Link to the container image in ECR being used by the ECS task definition.            
   InstanceType:
     Description: EC2 instance type
     Type: String
@@ -58,14 +69,30 @@ Parameters:
       - i2.4xlarge
       - i2.8xlarge
     ConstraintDescription: Please choose a valid instance type.
+
+
 Mappings:
+  Static:
+    AppName: stonk-pix    
+  
   AWSRegionToAMI:
     us-west-2:
       AMIID: ami-078c97cf1cefd1b38
+  
+  Environment:
+    int:
+    prod:
 
 Resources:
   ECSCluster:
     Type: 'AWS::ECS::Cluster'
+    ClusterName: !Join 
+        - '-'
+        - - !FindInMap 
+            - Environment
+            - !Ref Environment
+            - AppName
+          - !Ref Environment
   EcsSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
@@ -114,7 +141,7 @@ Resources:
         - Name: simple-app
           Cpu: '10'
           Essential: 'true'
-          Image: 'httpd:2.4'
+          Image: !Ref ImageUrl
           Memory: '300'
           LogConfiguration:
             LogDriver: awslogs
