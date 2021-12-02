@@ -5,29 +5,10 @@ from generate_factors import generate_factors
 from training import train_pipeline
 from output import output_pipeline
 from coin import Coin
-
-# todo config.yml
-COINS = [
-    "BTC/USD",
-    "ETH/USD",
-    "ADA/USD",
-    "DOGE/USD",
-    "LTC/USD",
-    "DOT/USD",
-    "MANA/USD",
-    "SOL/USD",
-    "DOGE/USD",
-    "ALGO/USD",
-    "XMR/USD",
-    "XRP/USD",
-    "BCH/USD",
-]
-
-TIMEPERIODS = ["1d"]
-SLEEP_TIME = 60 * 15
+from config import COINS, TIMEPERIODS, SLEEP_TIME, DB_NAME
 
 
-def ml_pipeline(coin):
+def ml_pipeline(coin, validate=False):
     print("Getting data for", coin)
     df = get_ohlcv_series(exchange, coin.original_symbol, coin.period)
 
@@ -47,13 +28,13 @@ def ml_pipeline(coin):
         print("Success", coin.symbol, coin.period)
         print("Training model for", coin)
         prediction, backtest_mape = train_pipeline(
-            coin.scaled, target_var=coin.target_var, validate_model=False
+            coin.scaled, target_var=coin.target_var, validate_model=validate
         )
         coin.backtest_mape = backtest_mape
         coin.prediction = prediction
         coin.last_compute = datetime.datetime.utcnow()
         print("Running output pipeline for", coin)
-        coin = output_pipeline(coin)
+        coin = output_pipeline(DB_NAME, coin)
     return coin
 
 
@@ -74,7 +55,7 @@ def main_ml_loop(coins, sleep_time):
         coin = coins.pop()
         if coin.check_compute_time():
             print(f"Timedelta expired, computing {coin}")
-            coin = ml_pipeline(coin)
+            coin = ml_pipeline(coin, validate=False)
         else:
             print(f"Timedelta has not yet expired for {coin}")
 

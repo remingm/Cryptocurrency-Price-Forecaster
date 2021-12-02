@@ -38,7 +38,7 @@ def get_return_lags(df, target_var="close"):
 
 
 def generate_factors(df, target_var, ignore_low_volume_coins=True):
-    covars, df = get_return_lags(df, target_var)
+    covars, df = get_return_lags(df, target_var="close")
     covars, df = get_ta(df)
 
     mvf = MissingValuesFiller()

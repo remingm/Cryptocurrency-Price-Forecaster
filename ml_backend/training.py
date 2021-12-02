@@ -45,7 +45,7 @@ def eval_model(model, train, val, scaled, target_var, plot=False):
 
     if plot:
         scaled["close"].plot(new_plot=True, label="Actual")
-        prediction["trend_sma_slow"].plot(label="Forecast")
+        prediction[target_var].plot(label="Forecast")
 
 
 def backtest_model(model, train, scaled, target_var, target_var_idx):
