@@ -31,12 +31,16 @@ Stop and remove containers and db data:
 `docker-compose down --volumes` 
 
 Optional:  
+- Change database name in `config.py`.
 - Customize the Mongo port and db data directory in `docker-compose.yml`
 - If you don't need a Mongo container then comment out the entire mongo block in `docker-compose.yml` and update `MONGO_HOST` (probably to an AWS host).
+- Customize coins and timeperiods in `config.py`.
 
 ## MongoDB Info
 
 After running `docker-compose up`, Mongo will be accessible at the default `localhost:2017`.
+
+Change database name in `config.py`.
 
 Here's how to inspect the database:
 ####Start shell in container

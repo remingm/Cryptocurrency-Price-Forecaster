@@ -24,20 +24,28 @@ def train_model(train, val=None):
     return model
 
 
-def eval_model(model, train, val, scaled, target_var):
-    pred = model.predict(
+def eval_model(model, train, val, scaled, target_var, plot=False):
+    prediction = model.predict(
         n=len(val),
         series=train,
     )
-    scaled[target_var].plot(label="actual")
-    pred[target_var].plot(label="forecast", low_quantile=0.05, high_quantile=0.95)
-    print("MAPE = {:.2f}%".format(mape(scaled[target_var], pred[target_var])))
-    print("sMAPE = {:.2f}%".format(smape(scaled[target_var], pred[target_var])))
-    print(
-        "MASE = {:.2f}%".format(
-            mase(scaled[target_var], pred[target_var], insample=train[target_var])
-        )
+    # scaled[target_var].plot(new_plot=True,label="actual")
+    # prediction[target_var].plot(label="forecast", low_quantile=0.05, high_quantile=0.95)
+    # print("MAPE = {:.2f}%".format(mape(scaled[target_var], prediction[target_var])))
+    # print("sMAPE = {:.2f}%".format(smape(scaled[target_var], prediction[target_var])))
+    # print(
+    #     "MASE = {:.2f}%".format(
+    #         mase(scaled[target_var], pred[target_var], insample=train[target_var])
+    #     )
+    # )
+
+    prediction = align_prediction(
+        scaled, prediction, target_var="close", idx=len(train)
     )
+
+    if plot:
+        scaled["close"].plot(new_plot=True, label="Actual")
+        prediction[target_var].plot(label="Forecast")
 
 
 def backtest_model(model, train, scaled, target_var, target_var_idx):
@@ -68,26 +76,41 @@ def predict(model, scaled, target_var, plot=False):
         # series=scaled,
     )
 
+    prediction = align_prediction(scaled, prediction, target_var="close")
+
     if plot:
-        scaled[target_var].plot(label="Past")
+        scaled["close"].plot(new_plot=True, label="Past")
         prediction[target_var].plot(label="Forecast")
 
     return prediction
 
 
-def train_pipeline(scaled, target_var="close", validate_model=True):
+def align_prediction(scaled, prediction, target_var="close", idx=-1):
+    # align without removing other pred columns
+    value_at_first_step = float(scaled[target_var][idx].values())
+    prediction = prediction.rescale_with_value(value_at_first_step)
+    return prediction
+
+
+def train_pipeline(scaled, target_var="close", validate_model=False):
     target_var_idx = scaled.columns.get_loc(target_var)
     train, val = split_data(scaled_timeseries=scaled)
 
     if validate_model:
         # Holdout val set and score
-        model = train_model(train, val)
-        backtest_mape = backtest_model(model, train, scaled, target_var, target_var_idx)
+        try:
+            model = train_model(train, val)
+            # backtest_mape = backtest_model(model, train, scaled, target_var, target_var_idx)
+            eval_model(model, train, val, scaled, target_var, plot=True)
+        except:
+            pass
+        backtest_mape = -1
+
     else:
         backtest_mape = -1
 
     # Retrain on all data and predict
     model = train_model(scaled)
-    prediction = predict(model, scaled, target_var)
+    prediction = predict(model, scaled, target_var, plot=False)
 
     return prediction, backtest_mape
