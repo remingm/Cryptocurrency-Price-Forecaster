@@ -2,11 +2,11 @@ AWSTemplateFormatVersion: 2010-09-09
 Parameters:
   KeyName:
     Type: 'AWS::EC2::KeyPair::KeyName'
-    Default: 'ssh-insilabs-keypair'
+    Default: ssh-insilabs-keypair
     Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
   VpcId:
     Type: 'AWS::EC2::VPC::Id'
-    Default: 'vpc-0b103bd6a68a03861'
+    Default: vpc-0b103bd6a68a03861
     Description: Select a VPC that allows instances to access the Internet.
   SubnetId:
     Type: 'List<AWS::EC2::Subnet::Id>'
@@ -20,9 +20,9 @@ Parameters:
     Type: Number
     Default: '1'
     Description: Maximum number of instances that can be launched in your ECS cluster.
-  ImageUrl: 
+  ImageUrl:
     Type: String
-    Default: 525599889582.dkr.ecr.us-west-2.amazonaws.com/stonk-pix-backend:latest
+    Default: '525599889582.dkr.ecr.us-west-2.amazonaws.com/stonk-pix-backend:latest'
     Description: Link to the container image in ECR being used by the ECS task definition.
   Environment:
     Type: String
@@ -30,7 +30,7 @@ Parameters:
     AllowedValues:
       - int
       - prod
-    Description: Link to the container image in ECR being used by the ECS task definition.            
+    Description: Link to the container image in ECR being used by the ECS task definition.
   InstanceType:
     Description: EC2 instance type
     Type: String
@@ -69,34 +69,41 @@ Parameters:
       - i2.4xlarge
       - i2.8xlarge
     ConstraintDescription: Please choose a valid instance type.
-
-
 Mappings:
-  Static:
-    AppName: stonk-pix    
-  
+  static:
+    all:
+      appName: stonk-pix-backend
   AWSRegionToAMI:
     us-west-2:
       AMIID: ami-078c97cf1cefd1b38
-  
-  Environment:
+  environment:
     int:
+      containerName: stonk-pix-backend-int
     prod:
-
+      containerName: stonk-pix-backend-prod
 Resources:
   ECSCluster:
     Type: 'AWS::ECS::Cluster'
-    ClusterName: !Join 
+    Properties:
+      ClusterName: !Join 
         - '-'
-        - - !FindInMap 
-            - Environment
-            - !Ref Environment
-            - AppName
+        - - 'Fn::FindInMap':
+              - static
+              - all
+              - appName
           - !Ref Environment
   EcsSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: ECS Security Group
+      GroupName: !Join 
+        - '-'
+        - - ecs-sg
+          - 'Fn::FindInMap':
+              - static
+              - all
+              - appName
+          - !Ref Environment
       VpcId: !Ref VpcId
   EcsSecurityGroupHTTPinbound:
     Type: 'AWS::EC2::SecurityGroupIngress'
@@ -128,64 +135,53 @@ Resources:
       LogGroupName: !Join 
         - '-'
         - - ECSLogGroup
-          - !Ref 'AWS::StackName'
+          - 'Fn::FindInMap':
+              - static
+              - all
+              - appName
+          - !Ref Environment
       RetentionInDays: 14
   taskdefinition:
     Type: 'AWS::ECS::TaskDefinition'
     Properties:
       Family: !Join 
-        - ''
-        - - !Ref 'AWS::StackName'
-          - '-ecs-demo-app'
+        - '-'
+        - - 'Fn::FindInMap':
+              - static
+              - all
+              - appName
+          - !Ref Environment
       ContainerDefinitions:
-        - Name: simple-app
-          Cpu: '10'
-          Essential: 'true'
-          Image: !Ref ImageUrl
-          Memory: '300'
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-group: !Ref CloudwatchLogsGroup
-              awslogs-region: !Ref 'AWS::Region'
-              awslogs-stream-prefix: ecs-demo-app
-          MountPoints:
-            - ContainerPath: /usr/local/apache2/htdocs
-              SourceVolume: my-vol
-          PortMappings:
-            - ContainerPort: 80
-        - Name: busybox
-          Cpu: 10
-          Command:
-            - >-
-              /bin/sh -c "while true; do echo '>html< >head< >title<Amazon ECS
-              Sample App>/title< >style<body {margin-top: 40px;
-              background-color: #333;} >/style< >/head<>body< >div
-              style=color:white;text-align:center< >h1<Amazon ECS Sample
-              App>/h1< >h2<Congratulations!>/h2< >p<Your application is now
-              running on a container in Amazon ECS.>/p<' < top; /bin/date < date
-              ; echo '>/div<>/body<>/html<' < bottom; cat top date bottom <
-              /usr/local/apache2/htdocs/index.html ; sleep 1; done"
-          EntryPoint:
-            - sh
-            - '-c'
-          Essential: false
-          Image: busybox
-          Memory: 200
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-group: !Ref CloudwatchLogsGroup
-              awslogs-region: !Ref 'AWS::Region'
-              awslogs-stream-prefix: ecs-demo-app
-          VolumesFrom:
-            - SourceContainer: simple-app
-      Volumes:
-        - Name: my-vol
+      - Name: !FindInMap [ environment, !Ref Environment, containerName ]
+        Cpu: '10'
+        Essential: 'true'
+        Image: !Ref ImageUrl
+        Memory: '300'
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group: !Ref CloudwatchLogsGroup
+            awslogs-region: !Ref 'AWS::Region'
+            awslogs-stream-prefix: !Join 
+              - '-'
+              - - 'Fn::FindInMap':
+                    - static
+                    - all
+                    - appName
+                - !Ref Environment
+        PortMappings:
+          - ContainerPort: 80
   ECSALB:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:
-      Name: ECSALB
+      Name: !Join 
+        - '-'
+        - - 'Fn::FindInMap':
+              - static
+              - all
+              - appName
+          - alb
+          - !Ref Environment
       Scheme: internet-facing
       LoadBalancerAttributes:
         - Key: idle_timeout.timeout_seconds
@@ -247,6 +243,14 @@ Resources:
   ContainerInstances:
     Type: 'AWS::AutoScaling::LaunchConfiguration'
     Properties:
+      LaunchConfigurationName: !Join 
+        - '-'
+        - - 'Fn::FindInMap':
+              - static
+              - all
+              - appName
+          - launch-configuration
+          - !Ref Environment
       ImageId: !FindInMap 
         - AWSRegionToAMI
         - !Ref 'AWS::Region'
@@ -280,9 +284,14 @@ Resources:
     DependsOn: ALBListener
     Properties:
       Cluster: !Ref ECSCluster
-      DesiredCount: '1'
+      ServiceName: !Join 
+        - '-'
+        - - ecs-service
+          - !FindInMap [static, all, appName]
+          - !Ref Environment
+      DesiredCount: 1
       LoadBalancers:
-        - ContainerName: simple-app
+        - ContainerName: !FindInMap [environment, !Ref Environment, containerName ]
           ContainerPort: '80'
           TargetGroupArn: !Ref ECSTG
       Role: !Ref ECSServiceRole
@@ -312,6 +321,8 @@ Resources:
                   - 'elasticloadbalancing:RegisterTargets'
                   - 'ec2:Describe*'
                   - 'ec2:AuthorizeSecurityGroupIngress'
+                  - 'ecr:BatchGetImage'
+                  - 'ecr:GetDownloadUrlForLayer'
                 Resource: '*'
   ServiceScalingTarget:
     Type: 'AWS::ApplicationAutoScaling::ScalableTarget'
@@ -348,6 +359,14 @@ Resources:
   ALB500sAlarmScaleUp:
     Type: 'AWS::CloudWatch::Alarm'
     Properties:
+      AlarmName: !Join 
+        - '-'
+        - - 'Fn::FindInMap':
+              - static
+              - all
+              - appName
+          - ALB500sAlarmScaleUp
+          - !Ref Environment
       EvaluationPeriods: '1'
       Statistic: Average
       Threshold: '10'
@@ -390,6 +409,8 @@ Resources:
                   - 'ecs:Submit*'
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
+                  - 'ecr:BatchGetImage'
+                  - 'ecr:GetDownloadUrlForLayer'
                 Resource: '*'
   AutoscalingRole:
     Type: 'AWS::IAM::Role'
@@ -414,6 +435,8 @@ Resources:
                   - 'cloudwatch:PutMetricAlarm'
                   - 'ecs:DescribeServices'
                   - 'ecs:UpdateService'
+                  - 'ecr:BatchGetImage'
+                  - 'ecr:GetDownloadUrlForLayer'
                 Resource: '*'
   EC2InstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
