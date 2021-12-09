@@ -7,9 +7,6 @@
 4. Forecast: `training.py`
 5. Format and write to mongo:`output.py`
 
-#### To do: 
-- config.yml for coins and periods
-
 There are two options for installing: Docker or Conda.
 
 ## Docker Compose
