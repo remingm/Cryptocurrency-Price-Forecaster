@@ -170,7 +170,7 @@ Resources:
                     - appName
                 - !Ref Environment
         PortMappings:
-          - ContainerPort: 80
+          - ContainerPort: 3000
   ECSALB:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:
