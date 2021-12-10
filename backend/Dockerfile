@@ -2,6 +2,7 @@ FROM alpine:latest
 RUN apk add nodejs npm
 
 # Create app directory
+RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 # Install app dependencies
@@ -14,7 +15,7 @@ RUN npm install
 # RUN npm ci --only=production
 
 # Bundle app source
-COPY . .
+COPY . /usr/src/app
 
 EXPOSE 3000
 

@@ -321,8 +321,6 @@ Resources:
                   - 'elasticloadbalancing:RegisterTargets'
                   - 'ec2:Describe*'
                   - 'ec2:AuthorizeSecurityGroupIngress'
-                  - 'ecr:BatchGetImage'
-                  - 'ecr:GetDownloadUrlForLayer'
                 Resource: '*'
   ServiceScalingTarget:
     Type: 'AWS::ApplicationAutoScaling::ScalableTarget'
@@ -409,6 +407,8 @@ Resources:
                   - 'ecs:Submit*'
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
+                  - 'ecr:GetAuthorizationToken'
+                  - 'ecr:BatchCheckLayerAvailability'
                   - 'ecr:BatchGetImage'
                   - 'ecr:GetDownloadUrlForLayer'
                 Resource: '*'
@@ -435,8 +435,6 @@ Resources:
                   - 'cloudwatch:PutMetricAlarm'
                   - 'ecs:DescribeServices'
                   - 'ecs:UpdateService'
-                  - 'ecr:BatchGetImage'
-                  - 'ecr:GetDownloadUrlForLayer'
                 Resource: '*'
   EC2InstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
