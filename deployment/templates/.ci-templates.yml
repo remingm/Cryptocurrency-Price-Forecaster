@@ -8,11 +8,13 @@ variables:
   variables:
     APP_NAME: stonk-pix-backend
     DOCKER_DIRECTORY_PATH: backend
+    CFT_PARAMETERS: ParameterKey=SessionSecret,ParameterValue=$BACKEND_SESSION_SECRET
 
 .ml-backend-variables:
   variables: 
     APP_NAME: stonk-pix-ml-backend
-    DOCKER_DIRECTORY_PATH: ml_backend 
+    DOCKER_DIRECTORY_PATH: ml_backend
+    CFT_PARAMETERS: "" 
 
 .frontend-variables:
   variables: 
@@ -53,4 +55,4 @@ variables:
   before_script:
     - aws --version
   script:
-    - sh deployment/scripts/create-or-update-stacks.sh us-west-2 $APP_NAME-$ENVIRONMENT --template-body file://backend/infrastructure/CFT.yml --capabilities CAPABILITY_NAMED_IAM
+    - sh deployment/scripts/create-or-update-stacks.sh us-west-2 $APP_NAME-$ENVIRONMENT --parameters $CFT_PARAMETERS --template-body file://backend/infrastructure/CFT.yml --capabilities CAPABILITY_NAMED_IAM
