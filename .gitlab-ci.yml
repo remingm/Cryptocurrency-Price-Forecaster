@@ -9,6 +9,7 @@ backend-build-image-push-ecr:
   stage: build-image-push-ecr
   extends:
     - .backend-variables
+    - .int-environment
     - .build-image-push-ecr 
   only:
     - main
@@ -17,6 +18,7 @@ backend-build-image-push-ecr:
 ml-build-image-push-ecr:
   extends:
     - .ml-backend-variables
+    - .int-environment    
     - .build-image-push-ecr
   stage: build-image-push-ecr
   only:
@@ -26,6 +28,7 @@ backend-deploy:
   stage: deploy
   extends:
     - .backend-variables
+    - .int-environment    
     - .deploy 
   only:
     - main

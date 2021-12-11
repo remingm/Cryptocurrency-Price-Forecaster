@@ -30,7 +30,10 @@ Parameters:
     AllowedValues:
       - int
       - prod
-    Description: Link to the container image in ECR being used by the ECS task definition.
+  SessionSecret:
+    Type: String      
+    Description: session signing secret
+    NoEcho: true
   InstanceType:
     Description: EC2 instance type
     Type: String
@@ -79,9 +82,11 @@ Mappings:
   environment:
     int:
       containerName: stonk-pix-backend-int
+      mongoDBCredentialSecret: stonk-pix-db-credential-prod
     prod:
       containerName: stonk-pix-backend-prod
-Resources:
+      mongoDBCredentialSecret: stonk-pix-db-credential-int
+Resources:   
   ECSCluster:
     Type: 'AWS::ECS::Cluster'
     Properties:
@@ -171,7 +176,19 @@ Resources:
                 - !Ref Environment
         PortMappings:
           - ContainerPort: 3000
-  ECSALB:
+        Environment:
+          - Name: NODE_ENV
+            Value: !Ref Environment
+          - Name: PORT
+            Value: '3000'
+          - Name: SESSION_SECRET
+            Value: !Ref SessionSecret  
+          - Name: MONGODB_URI
+            Value: !Sub
+              - 'mongodb+srv://${dbUsername}:${dbPassword}@cluster0.3mglf.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
+              - dbUsername: !Join ['', ['{{resolve:secretsmanager:', !FindInMap [environment, !Ref Environment, mongoDBCredentialSecret], ':SecretString:db-username}}' ]]
+                dbPassword: !Join ['', ['{{resolve:secretsmanager:', !FindInMap [environment, !Ref Environment, mongoDBCredentialSecret], ':SecretString:db-password}}' ]]
+  ECSALB:     
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:
       Name: !Join 

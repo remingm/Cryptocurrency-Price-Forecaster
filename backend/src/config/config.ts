@@ -12,7 +12,7 @@ if (fs.existsSync(path.resolve(__dirname, "../.env") )) {
 
 // NODE_ENV
 export const ENVIRONMENT = process.env["NODE_ENV"];
-const prod = ENVIRONMENT === "production"; // Anything else is treated as 'dev'
+const prod = ENVIRONMENT === "prod"; // Anything else is treated as 'int'
 
 // SESSION_SECRET
 export const SESSION_SECRET = process.env["SESSION_SECRET"];
