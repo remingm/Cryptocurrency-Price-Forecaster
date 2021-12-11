@@ -11,7 +11,7 @@
   "scripts": {
     "build-sass": "sass src/public/css/main.scss dist/public/css/main.css",
     "build-ts": "tsc",
-    "build": "npm run build-sass && npm run copy-env && npm run build-ts && npm run lint && npm run copy-static-assets",
+    "build": "npm run build-sass && npm run build-ts && npm run lint && npm run copy-static-assets",
     "copy-env": "cp src/.env dist/.env &>/dev/null",
     "copy-static-assets": "ts-node copyStaticAssets.ts",
     "debug": "npm run build && npm run watch-debug",
