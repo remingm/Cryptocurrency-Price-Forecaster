@@ -97,8 +97,8 @@ def train_pipeline(scaled, target_var="close", validate_model=False):
     # covariates
     covar_cols = list(scaled.columns.values)
     covar_cols.remove(target_var)
-    covariates = train[covar_cols]
-    target_series = train[[target_var]]
+    covariates = scaled[covar_cols]
+    target_series = scaled[[target_var]]
 
     if validate_model:
         # Holdout val set and score
