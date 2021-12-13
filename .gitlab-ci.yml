@@ -59,4 +59,4 @@ deploy-frontend:
   before_script:
     - aws --version
   script:
-    - aws s3 sync ./build/ $AWS_S3_URL --delete
+    - aws s3 sync ./dist/ $AWS_S3_URL --delete
