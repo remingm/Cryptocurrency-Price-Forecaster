@@ -11,7 +11,7 @@ def split_data(scaled_timeseries):
 def train_model(target_series, covariates, val=None, val_covar=None):
     pred_len = min(len(target_series) // 10, 72)
     model = TCNModel(
-        input_chunk_length=pred_len * 2,
+        input_chunk_length=pred_len + 1,
         output_chunk_length=pred_len,
         n_epochs=30,
         random_state=0,
@@ -31,9 +31,9 @@ def eval_model(model, train, val, train_covar, scaled, target_var, plot=False):
     pred_len = min(len(train) // 10, 72)
     prediction = model.predict(n=pred_len, series=train, past_covariates=train_covar)
 
-    # prediction = align_prediction(
-    #     scaled, prediction, target_var="close", idx=len(train)
-    # )
+    prediction = align_prediction(
+        scaled, prediction, target_var="close", idx=len(train)
+    )
 
     if plot:
         scaled["close"].plot(new_plot=True, label="Actual")
@@ -71,7 +71,7 @@ def predict(model, target_series, covariates, scaled, target_var, plot=False):
         series=target_series, past_covariates=[covariates], n=pred_len, verbose=True
     )
 
-    # prediction = align_prediction(scaled, prediction, target_var="close")
+    prediction = align_prediction(scaled, prediction, target_var="close")
 
     if plot:
         scaled["close"].plot(new_plot=True, label="Past")
