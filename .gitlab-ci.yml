@@ -42,7 +42,7 @@ build-frontend:
   script:
     - cd ./frontend/
     - npm install
-    - CI-false npm run-script build
+    - CI=false npm run-script build
   artifacts:
     paths:
       - build
