@@ -476,6 +476,7 @@ Resources:
             Principal:
               Service: ecs-tasks.amazonaws.com
             Action: 'sts:AssumeRole'
+      Path: /
       Policies:
         - PolicyName: ecs-service
           PolicyDocument:
@@ -484,6 +485,7 @@ Resources:
                 Action:
                   - 'secretsmanager:GetSecretValue'
                   - 'kms:Decrypt'
+                  - 'ecr:GetAuthorizationToken'
                 Resource: '*'
 
 Outputs:
