@@ -10,14 +10,16 @@ import path from "path";
 import mongoose from "mongoose";
 import passport from "passport";
 import bluebird from "bluebird";
+import * as mongoDB from "mongodb";
 import { MONGODB_URI, SESSION_SECRET } from "./config/config";
+
 
 // Controllers (route handlers)
 import * as homeController from "./controllers/home";
 import * as userController from "./controllers/user";
 // import * as apiController from "./controllers/api";
 import * as contactController from "./controllers/contact";
-import * as coinController from "./controllers/coin";
+import * as coinController from "./controllers/CoinController";
 
 // API keys and Passport configuration
 import * as passportConfig from "./config/passport";
@@ -29,16 +31,16 @@ const app = express();
 const mongoUrl = MONGODB_URI;
 mongoose.Promise = bluebird;
 
+console.log("connecting to mongodb....");
 mongoose
-  .connect(mongoUrl, {
-    useNewUrlParser: true,
-    useCreateIndex: true
-  })
+  .connect(mongoUrl)
   .then(() => {
     /** ready to use. The `mongoose.connect()` promise resolves to undefined. */
+    console.log(`succesfully connected to MongoDB at ${mongoUrl}`);
+    mongoose.Query;
   })
   .catch((err) => {
-    console.log(
+    console.error(
       `MongoDB connection error. Please make sure MongoDB is running. ${err}`
     );
     // process.exit();
@@ -58,9 +60,6 @@ app.use(
     secret: SESSION_SECRET,
     store: new MongoStore({
       mongoUrl,
-      mongoOptions: {
-        autoReconnect: true,
-      },
     }),
   })
 );
