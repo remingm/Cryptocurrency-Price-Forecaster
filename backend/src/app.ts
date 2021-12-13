@@ -321,25 +321,4 @@ baseRouter.use("/coins", coinRouter);
 
 app.use("/api/v1", baseRouter);
 
-/**
- * API examples routes.
- */
-// app.get("/api", apiController.getApi);
-// app.get("/api/facebook", passportConfig.isAuthenticated, passportConfig.isAuthorized, apiController.getFacebook);
-
-/**
- * OAuth authentication routes. (Sign in)
- */
-// app.get(
-//   "/auth/facebook",
-//   passport.authenticate("facebook", { scope: ["email", "public_profile"] })
-// );
-// app.get(
-//   "/auth/facebook/callback",
-//   passport.authenticate("facebook", { failureRedirect: "/login" }),
-//   (req, res) => {
-//     res.redirect(req.session.returnTo || "/");
-//   }
-// );
-
 export default app;
