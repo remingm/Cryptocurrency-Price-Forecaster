@@ -1,3 +1,4 @@
+import { InteractionMode } from "chart.js";
 import { useEffect } from "react";
 import { Line } from "react-chartjs-2";
 const Graph = (props: any) => {
@@ -28,7 +29,7 @@ const Graph = (props: any) => {
     maintainAspectRatio: false,
     interaction: {
       intersect: false,
-      mode: "nearest",
+      mode: "nearest" as InteractionMode,
     },
     plugins: {
       legend: { display: false },
@@ -42,7 +43,7 @@ const Graph = (props: any) => {
       },
     },
   };
-  useEffect(() => {console.log(props.pastPrices) })
+
   return <Line data={data} options={options} />;
 };
 
