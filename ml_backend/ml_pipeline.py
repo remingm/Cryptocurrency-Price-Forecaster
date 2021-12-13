@@ -55,7 +55,7 @@ def main_ml_loop(coins, sleep_time):
         coin = coins.pop()
         if coin.check_compute_time():
             print(f"Timedelta expired, computing {coin}")
-            coin = ml_pipeline(coin, validate=False)
+            coin = ml_pipeline(coin, validate=True)
         else:
             print(f"Timedelta has not yet expired for {coin}")
 
