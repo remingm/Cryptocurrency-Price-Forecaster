@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  KeyName:
+    Type: 'AWS::EC2::KeyPair::KeyName'
+    Default: ssh-insilabs-keypair
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
+  VpcId:
+    Type: 'AWS::EC2::VPC::Id'
+    Default: vpc-0b103bd6a68a03861
+    Description: Select a VPC that allows instances to access the Internet.
+  SubnetId:
+    Type: 'List<AWS::EC2::Subnet::Id>'
+    Default: 'subnet-08fb6669826370ea7,subnet-0aa8d96f347294f31'
+    Description: Select at least two subnets in your selected VPC.
+  DesiredCapacity:
+    Type: Number
+    Default: '1'
+    Description: Number of instances to launch in your ECS cluster.
+  MaxSize:
+    Type: Number
+    Default: '1'
+    Description: Maximum number of instances that can be launched in your ECS cluster.
+  ImageUrl:
+    Type: String
+    Default: '525599889582.dkr.ecr.us-west-2.amazonaws.com/stonk-pix-backend:latest'
+    Description: Link to the container image in ECR being used by the ECS task definition.
+  Environment:
+    Type: String
+    Default: int
+    AllowedValues:
+      - int
+      - prod
+    Description: Link to the container image in ECR being used by the ECS task definition.
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - t2.small
+      - t2.medium
+      - t2.large
+      - m3.medium
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+      - c3.large
+      - c3.xlarge
+      - c3.2xlarge
+      - c3.4xlarge
+      - c3.8xlarge
+      - r3.large
+      - r3.xlarge
+      - r3.2xlarge
+      - r3.4xlarge
+      - r3.8xlarge
+      - i2.xlarge
+      - i2.2xlarge
+      - i2.4xlarge
+      - i2.8xlarge
+    ConstraintDescription: Please choose a valid instance type.
+Mappings:
+  static:
+    all:
+      appName: stonk-pix-db
+  AWSRegionToAMI:
+    us-west-2:
+      AMIID: ami-078c97cf1cefd1b38
+  environment:
+    int:
+      containerName: stonk-pix-backend-int
+    prod:
+      containerName: stonk-pix-backend-prod
+
+Resources:
+  DBCluster:
+    Type: 'AWS::DocDB::DBCluster'
+    DeletionPolicy: Delete
+    Properties:
+      DBClusterIdentifier: !Ref DBClusterName
+      MasterUsername: !Ref MasterUser
+      MasterUserPassword: !Ref MasterPassword
+      DeletionProtection: 'true'

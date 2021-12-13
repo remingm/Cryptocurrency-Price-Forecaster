@@ -1,13 +1,15 @@
 include: 
-  - 'templates/.ci-templates.yml'
+  - 'deployment/templates/.ci-templates.yml'
 
 stages:
-  - build-image-push-ecr
+    - build-image-push-ecr
+    - deploy
 
 backend-build-image-push-ecr:
   stage: build-image-push-ecr
   extends:
     - .backend-variables
+    - .int-environment
     - .build-image-push-ecr 
   only:
     - main
@@ -15,8 +17,17 @@ backend-build-image-push-ecr:
 ml-build-image-push-ecr:
   extends:
     - .ml-backend-variables
+    - .int-environment    
     - .build-image-push-ecr
   stage: build-image-push-ecr
   only:
     - main
 
+backend-deploy:
+  stage: deploy
+  extends:
+    - .backend-variables
+    - .int-environment    
+    - .deploy 
+  only:
+    - main
