@@ -43,9 +43,9 @@ build-frontend:
     - npm install
     - CI-false npm run-script build
   artifacts:
-    - path:
-        - build
-      expire_in: 1 hour
+    paths:
+      - build
+    expire_in: 1 hour
 
 deploy-frontend:
   image:
