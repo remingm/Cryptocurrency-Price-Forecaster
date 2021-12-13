@@ -1,23 +1,24 @@
-include: 
-  - 'deployment/templates/.ci-templates.yml'
+include:
+  - "deployment/templates/.ci-templates.yml"
 
 stages:
-    - build-image-push-ecr
-    - deploy
+  - build-image-push-ecr
+  - pre-deploy
+  - deploy
 
 backend-build-image-push-ecr:
   stage: build-image-push-ecr
   extends:
     - .backend-variables
     - .int-environment
-    - .build-image-push-ecr 
+    - .build-image-push-ecr
   only:
     - main
 
 ml-build-image-push-ecr:
   extends:
     - .ml-backend-variables
-    - .int-environment    
+    - .int-environment
     - .build-image-push-ecr
   stage: build-image-push-ecr
   only:
@@ -27,7 +28,34 @@ backend-deploy:
   stage: deploy
   extends:
     - .backend-variables
-    - .int-environment    
-    - .deploy 
+    - .int-environment
+    - .deploy
   only:
     - main
+
+build-frontend:
+  image: node:latest
+  stage: build
+  only:
+    - main
+    - front-end
+  script:
+    - npm install
+    - CI-false npm run-script build
+  artifacts:
+    - path:
+        - build
+      expire_in: 1 hour
+
+deploy-frontend:
+  image:
+    name: amazon/aws-cli
+    entrypoint: [""]
+  stage: pre-deploy
+  only:
+    - main
+    - front-end
+  before_script:
+    - aws --version
+  script:
+    - aws s3 sync ./build/ $AWS_S3_URL --delete
