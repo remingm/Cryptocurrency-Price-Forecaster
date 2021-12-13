@@ -160,6 +160,7 @@ Resources:
               - all
               - appName
           - !Ref Environment
+      ExecutionRoleArn: !Ref TaskExecutionRole    
       ContainerDefinitions:
       - Name: !FindInMap [ environment, !Ref Environment, containerName ]
         Cpu: '10'
@@ -465,6 +466,26 @@ Resources:
       Path: /
       Roles:
         - !Ref EC2Role
+  TaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join ['-', [stonkpix-task-execution-role, !Ref Environment]]
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: ecs-service
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'secretsmanager:GetSecretValue'
+                  - 'kms:Decrypt'
+                Resource: '*'
+
 Outputs:
   ecsservice:
     Value: !Ref service
