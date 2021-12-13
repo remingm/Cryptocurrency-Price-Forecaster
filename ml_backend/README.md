@@ -7,9 +7,6 @@
 4. Forecast: `training.py`
 5. Format and write to mongo:`output.py`
 
-#### To do: 
-- config.yml for coins and periods
-
 There are two options for installing: Docker or Conda.
 
 ## Docker Compose
@@ -31,8 +28,75 @@ Stop and remove containers and db data:
 `docker-compose down --volumes` 
 
 Optional:  
+- Change database name in `config.py`.
 - Customize the Mongo port and db data directory in `docker-compose.yml`
 - If you don't need a Mongo container then comment out the entire mongo block in `docker-compose.yml` and update `MONGO_HOST` (probably to an AWS host).
+- Customize coins and timeperiods in `config.py`.
+
+## MongoDB Info
+
+After running `docker-compose up`, Mongo will be accessible at the default `localhost:2017`.
+
+Change database name in `config.py`.
+
+Here's how to inspect the database:
+####Start shell in container
+`docker exec -it ml_backend_mongo_1 bash`  
+
+####Show the DB
+Run `mongo` to enter the mongo shell. Then, from within the mongo shell, run:
+
+`use db_name`
+
+then to print db results similar to as shown below, run:
+
+`db.forecasts.find({"symbol": "BCH-USD", "period": "1d"}).pretty()`
+
+### DB Schema
+```
+{{
+    "symbol": "BCH-USD",
+    "past": [
+        {
+            "timestamp": 1638748800000,
+            "close": 475.66
+        },
+        {
+            "timestamp": 1638835200000,
+            "close": 474.29
+        },
+        {
+            "timestamp": 1638921600000,
+            "close": 480.12
+        },
+        {
+            "timestamp": 1639008000000,
+            "close": 466.08
+        }
+    ],
+    "prediction": [
+        {
+            "timestamp": 1639094400000,
+            "close": 466.08
+        },
+        {
+            "timestamp": 1639180800000,
+            "close": 466.97
+        },
+        {
+            "timestamp": 1639267200000,
+            "close": 448.7
+        },
+        {
+            "timestamp": 1639353600000,
+            "close": 460.62
+        }
+    ],
+    "period": "1d",
+    "MAPE": -1
+}
+```
+
 
 
 ## Conda

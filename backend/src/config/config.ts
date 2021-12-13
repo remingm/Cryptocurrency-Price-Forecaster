@@ -3,11 +3,11 @@ import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 
-if (fs.existsSync(path.resolve(__dirname, "../.env") )) {
-    logger.debug("Using .env file to supply config environment variables");
-    dotenv.config({ path: path.resolve(__dirname, "../.env")});
+if (fs.existsSync(path.resolve(__dirname, "../.env"))) {
+  logger.debug("Using .env file to supply config environment variables");
+  dotenv.config({ path: path.resolve(__dirname, "../.env") });
 } else {
-    logger.warn("No environment file to load. Will use currently set env vars.");
+  logger.warn("No environment file to load. Will use currently set env vars.");
 }
 
 // NODE_ENV

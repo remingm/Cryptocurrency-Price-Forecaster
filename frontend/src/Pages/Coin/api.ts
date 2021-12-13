@@ -1,12 +1,19 @@
-import { Coin } from "./model";
+import { Coin, sampleCoin, } from "./model";
 
-export const api = {
+const CoinApi = {
     getCoins: (): Coin[] => {
-        let coins: Coin[] = [{ name: "BTC", price: 11000 }, { name: "ETH", price: 7.04 }]
+        const coins: Coin[] = [sampleCoin ]
         return coins
     },
 
-    getCoin: (coinId: number): Coin => {
-        return { name: "BTC", price: 0.44 }
+    // get details for a single coin - ex "BTC"
+    getCoin: (coinId: string): Promise<Coin> => {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => { resolve(sampleCoin) }
+                , 250)
+        })
+
     }
 }
+
+export default CoinApi

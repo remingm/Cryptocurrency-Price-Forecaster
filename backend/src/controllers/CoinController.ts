@@ -1,5 +1,6 @@
 import StatusCodes from "http-status-codes";
 import { Request, Response } from "express";
+import Coin from "../models/CoinModel";
 
 // const userDao = new UserDao();
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;
@@ -42,7 +43,13 @@ export async function getCoinsPeriodList(req: Request, res: Response) {
 export async function getCoinData(req: Request, res: Response) {
   const coin_name = req.params.coin;
   const coin_period = req.params.period;
+
+  // const coin_name = "BTC-USD";
+  // const coin_period = "1h";
+
   console.log("gettin coin data", coin_name, coin_period);
+
+  return Coin.find({ symbol: coin_name, period: coin_period });
   return res
     .status(OK)
     .json({ coin_name: coin_name, coin_period: coin_period });

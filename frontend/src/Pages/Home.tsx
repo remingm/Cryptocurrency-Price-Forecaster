@@ -1,18 +1,16 @@
 const Home = () => {
-    return (
+  return (
 
         <div className="relative pt-16 pb-32 flex content-center items-center justify-center"
             style={{
-                minHeight: "75vh"
+              minHeight: '75vh'
             }}>
             <div className="absolute top-0 w-full h-full bg-center bg-cover"
                 style={{
-                    backgroundImage: "url('/src/assets/stonks.png')"
+                  backgroundImage: "url('/src/assets/stonks.png')"
                 }}>
                 <span id="blackOverlay" className="w-full h-full absolute opacity-60 bg-black"></span>
             </div>
-
-
 
             <div className="container relative mx-auto">
                 <div className="items-center flex flex-wrap">
@@ -31,6 +29,6 @@ const Home = () => {
             </div>
         </div>
 
-    )
+  )
 }
 export default Home

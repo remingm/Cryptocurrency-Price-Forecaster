@@ -5,14 +5,15 @@ module.exports = {
   },
   extends: [
     'plugin:react/recommended',
-    'standard'
+    'standard',
+    'prettier'
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaFeatures: {
       jsx: true
     },
-    ecmaVersion: 12,
+    ecmaVersion: 13,
     sourceType: 'module'
   },
   plugins: [
@@ -20,5 +21,6 @@ module.exports = {
     '@typescript-eslint'
   ],
   rules: {
+    'react/react-in-jsx-scope': 'off'
   }
 }
