@@ -47,9 +47,9 @@ def format_json(symbol, period, past_close, prediction, backtest_mape, target_va
     past_dict = json.loads(past_close.to_json())[target_var]
     pred_dict = json.loads(prediction.to_json())[target_var]
     for key in past_dict.keys():
-        reformatted_past.append({"timestamp": int(key), target_var: past_dict[key]})
+        reformatted_past.append({"timestamp": int(key), "close": past_dict[key]})
     for key in pred_dict.keys():
-        reformatted_pred.append({"timestamp": int(key), target_var: pred_dict[key]})
+        reformatted_pred.append({"timestamp": int(key), "close": pred_dict[key]})
 
     return_dict["past"] = reformatted_past
     return_dict["prediction"] = reformatted_pred
@@ -69,16 +69,16 @@ def write_to_db(forecasts, DB_NAME):
     db = client[DB_NAME]  # todo new db name
 
     for f in forecasts:
-        db.forecasts.delete_many({"symbol": f["symbol"], "period": f["period"]})
-        db.forecasts.insert_one(f)
+        db.coins.delete_many({"symbol": f["symbol"], "period": f["period"]})
+        db.coins.insert_one(f)
 
     # Debugging
     if False:
-        cursor = db.forecasts.find({})
+        cursor = db.coins.find({})
         for c in cursor:
-            print(c["symbol"], "is in db.forecasts")
+            print(c["symbol"], "is in db.coins")
 
-        cursor = db.forecasts.find()
+        cursor = db.coins.find()
 
         # pprint.pprint(cursor)
         for c in cursor:
