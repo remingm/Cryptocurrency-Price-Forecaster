@@ -2,12 +2,12 @@ include:
   - "deployment/templates/.ci-templates.yml"
 
 stages:
-  - build-image-push-ecr
+  - build
   - pre-deploy
   - deploy
 
 backend-build-image-push-ecr:
-  stage: build-image-push-ecr
+  stage: build
   extends:
     - .backend-variables
     - .int-environment
@@ -20,7 +20,7 @@ ml-build-image-push-ecr:
     - .ml-backend-variables
     - .int-environment
     - .build-image-push-ecr
-  stage: build-image-push-ecr
+  stage: build
   only:
     - main
 
