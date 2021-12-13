@@ -12,24 +12,17 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
  * @param res
  * @returns
  */
-export async function getCoinsPeriodList(req: Request, res: Response) {
-  const response_obj = [
-    {
-      name: "BTC",
-      period: "5m",
-    },
-    {
-      name: "ETH",
-      period: "5m",
-    },
-    {
-      name: "ADA",
-      period: "5m",
-    },
-  ];
+export async function getCoinsPeriodList(req: Request, res: Response): Promise<any> {
+  console.log("getting all coins");
 
-  // mongodb.querty
-  return res.status(OK).json(response_obj);
+  const coinsList = await Coin.find({}, { symbol : 1, period: 1 });
+
+  console.log("retrieved:");
+  console.log(coinsList);
+
+  return res
+    .status(OK)
+    .json(coinsList);
 }
 
 /**
@@ -40,17 +33,22 @@ export async function getCoinsPeriodList(req: Request, res: Response) {
  * @returns
  */
 
-export async function getCoinData(req: Request, res: Response) {
+export async function getCoinData(req: Request, res: Response): Promise<any> {
   const coin_name = req.params.coin;
   const coin_period = req.params.period;
-
-  // const coin_name = "BTC-USD";
-  // const coin_period = "1h";
-
   console.log("gettin coin data", coin_name, coin_period);
 
-  return Coin.find({ symbol: coin_name, period: coin_period });
+  const myCoin = await Coin.findOne({ symbol: coin_name, period: coin_period });
+
+  if (myCoin == null){
+    return res.status(BAD_REQUEST).json({ "Error": `coin/period combo { symbol: ${coin_name}, period: ${coin_period} } does not exist in db.`});
+  }
+
+  console.log("retrieved:");
+  console.log(myCoin.symbol);
+  console.log(myCoin.period);
+
   return res
     .status(OK)
-    .json({ coin_name: coin_name, coin_period: coin_period });
+    .json(myCoin);
 }
