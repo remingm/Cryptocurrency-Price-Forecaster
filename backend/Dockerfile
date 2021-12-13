@@ -14,7 +14,9 @@ RUN npm install
 # RUN npm ci --only=production
 
 # Bundle app source
-COPY . .
+COPY . /usr/src/app
+
+RUN npm run build
 
 EXPOSE 3000
 

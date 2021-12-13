@@ -28,7 +28,7 @@ def format_timestamp_index(past_close, df, prediction):
     return past_close, prediction
 
 
-def format_json(symbol, period, past_close, prediction, backtest_mape):
+def format_json(symbol, period, past_close, prediction, backtest_mape, target_var):
     return_dict = {
         "symbol": symbol,
         "past": json.loads(past_close.to_json()),
@@ -36,6 +36,23 @@ def format_json(symbol, period, past_close, prediction, backtest_mape):
         "period": period,
         "MAPE": backtest_mape,
     }
+
+    # [{
+    #     "time": 12345,
+    #     "price": 0.17
+    # }, ...]
+
+    reformatted_past = []
+    reformatted_pred = []
+    past_dict = json.loads(past_close.to_json())[target_var]
+    pred_dict = json.loads(prediction.to_json())[target_var]
+    for key in past_dict.keys():
+        reformatted_past.append({"timestamp": int(key), "close": past_dict[key]})
+    for key in pred_dict.keys():
+        reformatted_pred.append({"timestamp": int(key), "close": pred_dict[key]})
+
+    return_dict["past"] = reformatted_past
+    return_dict["prediction"] = reformatted_pred
 
     # json.dump(return_dict, open(f"{symbol}.json",'w'), indent=4)
     # print(json.dumps(return_dict, indent=4))
@@ -52,16 +69,16 @@ def write_to_db(forecasts, DB_NAME):
     db = client[DB_NAME]  # todo new db name
 
     for f in forecasts:
-        db.forecasts.delete_many({"symbol": f["symbol"], "period": f["period"]})
-        db.forecasts.insert_one(f)
+        db.coins.delete_many({"symbol": f["symbol"], "period": f["period"]})
+        db.coins.insert_one(f)
 
     # Debugging
     if False:
-        cursor = db.forecasts.find({})
+        cursor = db.coins.find({})
         for c in cursor:
-            print(c["symbol"], "is in db.forecasts")
+            print(c["symbol"], "is in db.coins")
 
-        cursor = db.forecasts.find()
+        cursor = db.coins.find()
 
         # pprint.pprint(cursor)
         for c in cursor:
@@ -77,7 +94,12 @@ def output_pipeline(DB_NAME, coin):
         past_close, coin.df, prediction
     )
     coin.return_dict = format_json(
-        coin.symbol, coin.period, coin.past_close, coin.prediction, coin.backtest_mape
+        coin.symbol,
+        coin.period,
+        coin.past_close,
+        coin.prediction,
+        coin.backtest_mape,
+        coin.target_var,
     )
     try:
         write_to_db([coin.return_dict], DB_NAME)
