@@ -28,15 +28,20 @@ import * as passportConfig from "./config/passport";
 const app = express();
 
 // Connect to MongoDB
+const reUsername = /<username>/gi;
+const rePassword = /<password>/gi;
+
+const secret_mongo_uri = MONGODB_URI.replace(reUsername, DB_USERNAME).replace(rePassword, DB_PASSWORD);
+
 const mongoUrl = MONGODB_URI;
 mongoose.Promise = bluebird;
 
 console.log("connecting to mongodb....");
 mongoose
-  .connect(mongoUrl)
+  .connect(secret_mongo_uri)
   .then(() => {
     /** ready to use. The `mongoose.connect()` promise resolves to undefined. */
-    console.log(`succesfully connected to MongoDB at ${mongoUrl}`);
+    console.log(`succesfully connected to MongoDB at ${MONGODB_URI}`);
     mongoose.Query;
   })
   .catch((err) => {
