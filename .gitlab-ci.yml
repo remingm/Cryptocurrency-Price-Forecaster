@@ -32,5 +32,5 @@ backend-deploy:
     - .deploy 
   only:
     - main
-    - stonk-pix.DbCFT
+    - stonk-pix.DbCFT 
 
