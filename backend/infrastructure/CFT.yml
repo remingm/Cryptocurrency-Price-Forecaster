@@ -194,7 +194,7 @@ Resources:
           - Name: SESSION_SECRET
             Value: !Ref SessionSecret  
           - Name: MONGODB_URI
-            Value: 'mongodb+srv://<username>:<password>@cluster0.3mglf.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
+            Value: 'mongodb://<username>:<password>@stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/?ssl=true&ssl_ca_certs=/usr/src/app/rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false'
   ECSALB:     
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:

@@ -11,7 +11,7 @@ import mongoose from "mongoose";
 import passport from "passport";
 import bluebird from "bluebird";
 import * as mongoDB from "mongodb";
-import { MONGODB_URI, SESSION_SECRET } from "./config/config";
+import { MONGODB_URI, SESSION_SECRET, DB_PASSWORD, DB_USERNAME } from "./config/config";
 import Coin from "./models/CoinModel";
 
 // import { prop, Ref, getModelForClass } from "@typegoose/typegoose";
@@ -50,10 +50,13 @@ import Coin from "./models/CoinModel";
 
 // myMongo = Mongo
 
+const reUsername = /<username>/gi;
+const rePassword = /<password>/gi;
 
+const final_mongo_uri = MONGODB_URI.replace(reUsername, DB_USERNAME).replace(rePassword, DB_PASSWORD);
 
 export async function connectToDatabase() {
-  const client: mongoDB.MongoClient = new mongoDB.MongoClient("mongodb://localhost:27017/db_name");
+  const client: mongoDB.MongoClient = new mongoDB.MongoClient(final_mongo_uri);
 
   await client.connect();
 

@@ -1,29 +1,14 @@
-AWSTemplateFormatVersion: 2010-09-09
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Template to Create a document DB parameter group, subnet group and cluster
 Parameters:
-  KeyName:
-    Type: 'AWS::EC2::KeyPair::KeyName'
-    Default: ssh-insilabs-keypair
-    Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
-  VpcId:
-    Type: 'AWS::EC2::VPC::Id'
+  VPC:
+    Type: String
+    Description: The VPC to create the cluster
     Default: vpc-0b103bd6a68a03861
-    Description: Select a VPC that allows instances to access the Internet.
   SubnetId:
     Type: 'List<AWS::EC2::Subnet::Id>'
     Default: 'subnet-08fb6669826370ea7,subnet-0aa8d96f347294f31'
     Description: Select at least two subnets in your selected VPC.
-  DesiredCapacity:
-    Type: Number
-    Default: '1'
-    Description: Number of instances to launch in your ECS cluster.
-  MaxSize:
-    Type: Number
-    Default: '1'
-    Description: Maximum number of instances that can be launched in your ECS cluster.
-  ImageUrl:
-    Type: String
-    Default: '525599889582.dkr.ecr.us-west-2.amazonaws.com/stonk-pix-backend:latest'
-    Description: Link to the container image in ECR being used by the ECS task definition.
   Environment:
     Type: String
     Default: int
@@ -31,44 +16,7 @@ Parameters:
       - int
       - prod
     Description: Link to the container image in ECR being used by the ECS task definition.
-  InstanceType:
-    Description: EC2 instance type
-    Type: String
-    Default: t2.micro
-    AllowedValues:
-      - t2.micro
-      - t2.small
-      - t2.medium
-      - t2.large
-      - m3.medium
-      - m3.large
-      - m3.xlarge
-      - m3.2xlarge
-      - m4.large
-      - m4.xlarge
-      - m4.2xlarge
-      - m4.4xlarge
-      - m4.10xlarge
-      - c4.large
-      - c4.xlarge
-      - c4.2xlarge
-      - c4.4xlarge
-      - c4.8xlarge
-      - c3.large
-      - c3.xlarge
-      - c3.2xlarge
-      - c3.4xlarge
-      - c3.8xlarge
-      - r3.large
-      - r3.xlarge
-      - r3.2xlarge
-      - r3.4xlarge
-      - r3.8xlarge
-      - i2.xlarge
-      - i2.2xlarge
-      - i2.4xlarge
-      - i2.8xlarge
-    ConstraintDescription: Please choose a valid instance type.
+
 Mappings:
   static:
     all:
@@ -78,16 +26,102 @@ Mappings:
       AMIID: ami-078c97cf1cefd1b38
   environment:
     int:
-      containerName: stonk-pix-backend-int
+      mongoDBCredentialSecret: stonk-pix-db-credential-int
     prod:
-      containerName: stonk-pix-backend-prod
+      mongoDBCredentialSecret: stonk-pix-db-credential-prod
 
 Resources:
-  DBCluster:
-    Type: 'AWS::DocDB::DBCluster'
-    DeletionPolicy: Delete
+   DBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
     Properties:
-      DBClusterIdentifier: !Ref DBClusterName
-      MasterUsername: !Ref MasterUser
-      MasterUserPassword: !Ref MasterPassword
-      DeletionProtection: 'true'
+      GroupDescription: "DB instances security group"
+      GroupName: !Join 
+        - '-'
+        - - !FindInMap ['static', 'all', 'appName']
+          - 'group'
+          - !Ref Environment
+      VpcId: !Ref VPC
+      SecurityGroupIngress: 
+        - 
+          CidrIp: "0.0.0.0/0"
+          IpProtocol: "-1"
+          FromPort: 22017
+          IpProtocol: "tcp"
+          ToPort: 22017
+      SecurityGroupEgress: 
+        - 
+          CidrIp: "0.0.0.0/0"
+          IpProtocol: "-1"
+      
+   DBSubnetGroup: 
+    Type: AWS::DocDB::DBSubnetGroup
+    Properties: 
+      DBSubnetGroupDescription: "document db subnet group"
+      DBSubnetGroupName: !Join 
+        - '-'
+        - - !FindInMap ['static', 'all', 'appName']
+          - 'subnet-group'
+          - !Ref Environment
+      SubnetIds: !Ref SubnetId
+
+   DBParameterGroup:
+    Type: AWS::DocDB::DBClusterParameterGroup
+    Properties:
+      Description: "our test document db parameter group"
+      Family: docdb4.0
+      Name: !Join 
+        - '-'
+        - - !FindInMap ['static', 'all', 'appName']
+          - 'parameter-group'
+          - !Ref Environment
+      Parameters: 
+        audit_logs: "disabled"
+        tls: "enabled"
+        ttl_monitor: "enabled"
+
+   DBCluster:
+    Type: AWS::DocDB::DBCluster
+    Properties: 
+      BackupRetentionPeriod : 5
+      DBClusterIdentifier : !Join 
+        - '-'
+        - - !FindInMap ['static', 'all', 'appName']
+          - 'cluster'
+          - !Ref Environment
+      DBClusterParameterGroupName : !Ref DBParameterGroup
+      DBSubnetGroupName : !Ref DBSubnetGroup
+      MasterUsername : !Join ['', ['{{resolve:secretsmanager:', !FindInMap [environment, !Ref Environment, mongoDBCredentialSecret], ':SecretString:db-username}}' ]]
+      MasterUserPassword : !Join ['', ['{{resolve:secretsmanager:', !FindInMap [environment, !Ref Environment, mongoDBCredentialSecret], ':SecretString:db-password}}' ]]
+      Port : "27017"
+      PreferredBackupWindow : "23:00-23:59"
+      PreferredMaintenanceWindow : "sun:00:00-sun:05:00"
+      VpcSecurityGroupIds:
+        - !Ref DBSecurityGroup
+      StorageEncrypted : true
+
+   DBInstance:
+    Type: AWS::DocDB::DBInstance
+    Properties:
+      AutoMinorVersionUpgrade: true
+      AvailabilityZone: "us-west-2a"
+      DBClusterIdentifier: !Ref DBCluster
+      DBInstanceClass: "db.t3.medium"
+      DBInstanceIdentifier: !Join 
+        - '-'
+        - - !FindInMap ['static', 'all', 'appName']
+          - 'instance'
+          - !Ref Environment
+      PreferredMaintenanceWindow: "sun:00:00-sun:05:00"
+
+Outputs:
+   Cluster:
+    Description: The DB Cluster Name
+    Value: !Ref DBCluster
+    
+   SubnetGroup:
+    Description: The db subnet group name 
+    Value: !Ref DBSubnetGroup
+
+   ParameterGroup:
+    Description: The db subnet group name 
+    Value: !Ref DBParameterGroup
