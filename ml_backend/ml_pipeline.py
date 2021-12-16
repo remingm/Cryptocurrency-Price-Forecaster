@@ -49,13 +49,13 @@ def make_coins_set(COINS, TIMEPERIODS, target_var="close"):
     return coins
 
 
-def main_ml_loop(coins, sleep_time):
+def main_ml_loop(coins, SLEEP_TIME,validate):
     processed = set()
     while len(coins) > 0:
         coin = coins.pop()
         if coin.check_compute_time():
             print(f"Timedelta expired, computing {coin}")
-            coin = ml_pipeline(coin, validate=True)
+            coin = ml_pipeline(coin, validate=validate)
         else:
             print(f"Timedelta has not yet expired for {coin}")
 
@@ -70,6 +70,6 @@ def main_ml_loop(coins, sleep_time):
 
 
 if __name__ == "__main__":
-    coins = make_coins_set(COINS, TIMEPERIODS, target_var="close")
+    coins = make_coins_set(COINS, TIMEPERIODS, target_var="kalman")
     while True:
-        coins = main_ml_loop(coins, SLEEP_TIME)
+        coins = main_ml_loop(coins, SLEEP_TIME,validate=True)

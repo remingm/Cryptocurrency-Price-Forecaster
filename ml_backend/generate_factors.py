@@ -41,6 +41,8 @@ def generate_factors(df, target_var, ignore_low_volume_coins=True):
     covars, df = get_return_lags(df, target_var="close")
     covars, df = get_ta(df)
 
+    covars, df = kalman_filter(covars,'close',df)
+
     mvf = MissingValuesFiller()
     covars = mvf.transform(covars)
 
@@ -61,8 +63,19 @@ def generate_factors(df, target_var, ignore_low_volume_coins=True):
     return scaled, scaler
 
 
-def kalman_filter(data, target_var):
+def kalman_filter(data, target_var,df):
     # Kalman Smoothing
-    filtered = KalmanFilter(P=1000.0, R=50, Q=1).filter(data[target_var])
+    filtered_timeseries = KalmanFilter(P=1000.0, R=50, Q=1).filter(data[target_var])
+    df['kalman'] = filtered_timeseries.pd_series()
+
+    ts = TimeSeries.from_dataframe(
+        df, fill_missing_dates=True
+    )  # time_col="UTC timestamp")
+
+    return ts, df
+
+
+
+    # Optional plot
     # data[target_var].plot(label='actual')
-    # filtered.univariate_component(0).plot(label="Filtered")
+    # filtered_timeseries.plot(label="Filtered")
