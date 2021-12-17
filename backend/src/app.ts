@@ -63,7 +63,7 @@ app.use(
     saveUninitialized: true,
     secret: SESSION_SECRET,
     store: new MongoStore({
-      mongoUrl,
+      mongoUrl: MONGODB_URI,
     }),
   })
 );
