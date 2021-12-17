@@ -45,9 +45,9 @@ Resources:
         - 
           CidrIp: "0.0.0.0/0"
           IpProtocol: "-1"
-          FromPort: 22017
+          FromPort: 27017
           IpProtocol: "tcp"
-          ToPort: 22017
+          ToPort: 27017
       SecurityGroupEgress: 
         - 
           CidrIp: "0.0.0.0/0"

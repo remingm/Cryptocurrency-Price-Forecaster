@@ -54,3 +54,6 @@ if (!DB_USERNAME){
   );
   process.exit(1);
 } 
+
+// CA directory
+export const CA_DIR = process.env["CA_DIR"];
