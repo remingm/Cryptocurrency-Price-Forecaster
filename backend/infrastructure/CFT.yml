@@ -200,7 +200,7 @@ Resources:
           - Name: 'CA_DIR' 
             Value: !Ref CaDir
           - Name: MONGODB_URI
-            Value: !FindInMap [environment, !Ref Environment, MongoDbUri]
+            Value: !FindInMap [environment, !Ref Environment, mongoDbUri]
   ECSALB:     
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:
