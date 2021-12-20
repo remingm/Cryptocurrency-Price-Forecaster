@@ -86,13 +86,13 @@ Mappings:
   environment:
     int:
       containerName: stonk-pix-backend-int
-      dbPasswordSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-int-fEsDRg:db-username::'
-      dbUsernameSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-int-fEsDRg:db-password::'
+      dbPasswordSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-int-fEsDRg:db-password::'
+      dbUsernameSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-int-fEsDRg:db-username::'
       mongoDbUri: 'mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?readPreference=secondaryPreferred&retryWrites=false'  
     prod:
       containerName: stonk-pix-backend-prod
-      dbPasswordSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-prod-S3CpMA:db-username::'
-      dbUsernameSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-prod-S3CpMA:db-password::'
+      dbPasswordSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-prod-S3CpMA:db-password::'
+      dbUsernameSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-prod-S3CpMA:db-username::'
       mongoDbUri: 'mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?readPreference=secondaryPreferred&retryWrites=false'        
 Resources:   
   ECSCluster:
@@ -189,7 +189,7 @@ Resources:
             - Name: DB_PASSWORD
               ValueFrom: !FindInMap [environment, !Ref Environment, dbPasswordSecretArn]
             - Name: DB_USERNAME
-              ValueFrom: !FindInMap [environment, !Ref Environment, dbPasswordSecretArn]
+              ValueFrom: !FindInMap [environment, !Ref Environment, dbUsernameSecretArn]
         Environment:
           - Name: NODE_ENV
             Value: !Ref Environment
