@@ -1,4 +1,4 @@
-import mongoose, { Number, Schema } from "mongoose";
+import mongoose, { Number, Schema, Document } from "mongoose";
 
 
 export interface ICoin extends Document {
