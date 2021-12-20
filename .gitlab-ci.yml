@@ -3,8 +3,8 @@ include:
 
 stages:
   - build
-  - pre-deploy
   - deploy
+  - post-deploy
 
 backend-build-image-push-ecr:
   stage: build
@@ -33,6 +33,16 @@ backend-deploy:
   only:
     - main
 
+frontend-deploy:
+  stage: deploy
+  extends:
+    - .frontend-variables
+    - .int-environment
+    - .deploy
+  only:
+    - main
+    - front-end
+
 build-frontend:
   image: node:latest
   stage: build
@@ -52,11 +62,7 @@ deploy-frontend:
   image:
     name: amazon/aws-cli
     entrypoint: [""]
-  stage: pre-deploy
-  extends:
-    - .frontend-variables
-    - .int-environment
-    - .deploy
+  stage: post-deploy
   only:
     - main
     - front-end
