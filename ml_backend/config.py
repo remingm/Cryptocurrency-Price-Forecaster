@@ -1,8 +1,8 @@
 DB_NAME = "db_name"
 COINS = [
-    "BTC/USD",
+    # "BTC/USD",
     # "ETH/USD",
-    # "ADA/USD",
+    "ADA/USD",
     # "DOGE/USD",
     # "LTC/USD",
     # "DOT/USD",

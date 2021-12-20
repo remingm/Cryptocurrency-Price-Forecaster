@@ -32,7 +32,7 @@ def eval_model(model, train, val, train_covar, scaled, target_var, plot=False):
     prediction = model.predict(n=pred_len, series=train, past_covariates=train_covar)
 
     prediction = align_prediction(
-        scaled, prediction, target_var="close", idx=len(train)
+        scaled, prediction, align_with="close", idx=len(train)
     )
 
     if plot:
@@ -60,45 +60,42 @@ def backtest_model(model, train, scaled, target_var, target_var_idx):
     return backtest_mape
 
 
-def predict(model, target_series, covariates, scaled, target_var, plot=False):
+def predict(model,coin,plot=False):
     # Predict future
-    pred_len = min(len(target_series) // 10, 72)
+    pred_len = min(len(coin.scaled_target) // 10, 72)
     # prediction = model.predict(
     #     n=pred_len,
     #     series=scaled,
     # )
     prediction = model.predict(
-        series=target_series, past_covariates=[covariates], n=pred_len, verbose=True
+        series=coin.scaled_target, past_covariates=[coin.scaled_covars], n=pred_len, verbose=True
     )
 
-    prediction = align_prediction(scaled, prediction, target_var="close")
+    prediction = align_prediction(coin.scaled_covars, prediction, align_with="close")
+    coin.prediction = prediction
 
+    plot = True
     if plot:
-        scaled["close"].plot(new_plot=True, label="Past")
-        prediction[target_var].plot(label="Forecast")
+        coin.scaled_covars["close"].plot(new_plot=True, label="Past")
+        prediction[coin.target_var].plot(label="Forecast")
 
     return prediction
 
 
-def align_prediction(scaled, prediction, target_var="close", idx=-1):
+def align_prediction(scaled, prediction, align_with="close", idx=-1):
     # align without removing other pred columns
-    value_at_first_step = float(scaled[target_var][idx].values())
+    value_at_first_step = float(scaled[align_with][idx].values())
     prediction = prediction.rescale_with_value(value_at_first_step)
     return prediction
 
 
-def train_pipeline(scaled, target_var="close", validate_model=False):
+def train_pipeline(coin, validate_model=False):
 
-    # covariates
-    covar_cols = list(scaled.columns.values)
-    covar_cols.remove(target_var)
-    covariates = scaled[covar_cols]
-    target_series = scaled[[target_var]]
 
     if validate_model:
         # split covariates
-        train_target, val_target = split_data(scaled_timeseries=target_series)
-        train_covar, val_covar = split_data(scaled_timeseries=covariates)
+        train_target, val_target = split_data(scaled_timeseries=coin.scaled_target)
+        train_covar, val_covar = split_data(scaled_timeseries=coin.covariates)
         # train, val = split_data(scaled_timeseries=scaled)
 
         # Holdout val set and score
@@ -106,7 +103,7 @@ def train_pipeline(scaled, target_var="close", validate_model=False):
         model = train_model(train_target, train_covar, val_target, val_covar)
         # backtest_mape = backtest_model(model, train, scaled, target_var, target_var_idx)
         eval_model(
-            model, train_target, val_target, train_covar, scaled, target_var, plot=True
+            model, train_target, val_target, train_covar, coin.scaled, coin.target_var, plot=True
         )
         # except:
         #     pass
@@ -116,9 +113,9 @@ def train_pipeline(scaled, target_var="close", validate_model=False):
         backtest_mape = -1
 
     # Retrain on all data and predict
-    model = train_model(target_series, covariates)
+    model = train_model(coin.scaled_target, coin.scaled_covars)
     prediction = predict(
-        model, target_series, covariates, scaled, target_var, plot=True
+        model, coin, plot=False # todo global plot toggle
     )
 
     return prediction, backtest_mape
