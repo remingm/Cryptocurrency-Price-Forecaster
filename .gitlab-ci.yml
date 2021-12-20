@@ -53,6 +53,10 @@ deploy-frontend:
     name: amazon/aws-cli
     entrypoint: [""]
   stage: pre-deploy
+  extends:
+    - .frontend-variables
+    - .int-environment
+    - .deploy
   only:
     - main
     - front-end
