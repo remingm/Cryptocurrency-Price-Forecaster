@@ -37,7 +37,7 @@ Resources:
           - Sid: PolicyForCloudFrontPrivateContent
             Effect: Allow
             Principal:
-              CanonicalUser: !GetAtt CFOriginAccessIdentity.S3CanonicalUserId
+              AWS: "525599889582"
             Action: "s3:GetObject*"
             Resource: !Join
               - ""

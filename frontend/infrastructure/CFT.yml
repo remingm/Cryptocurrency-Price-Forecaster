@@ -14,7 +14,7 @@ Resources:
     Properties:
       DistributionConfig:
         Origins:
-          - DomainName: !GetAtt S3Bucket.RegionalDomainName
+          - DomainName: !Sub "stonkpix-frontend.s3.us-west-2.amazonaws.com"
             Id: myS3Origin
             S3OriginConfig:
               OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CFOriginAccessIdentity}"
@@ -31,7 +31,7 @@ Resources:
           ViewerProtocolPolicy: redirect-to-https
         PriceClass: PriceClass_All
         Logging:
-          Bucket: !GetAtt LoggingBucket.RegionalDomainName
+          Bucket: !Sub "stonkpix-frontend-logs.s3.us-west-2.amazonaws.com"
           Prefix: "cloudfront-access-logs"
 
   # The Amazon CloudFront origin access identity
