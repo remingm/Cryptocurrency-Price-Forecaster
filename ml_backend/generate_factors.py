@@ -83,6 +83,4 @@ def scale_data(coin):
     coin.scaler_covars = Scaler()
     coin.scaled_covars = coin.scaler_covars.fit_transform(coin.covariates)
 
-    # coin.scaled = coin.scaler.transform(coin.timeseries)
-
     return coin
