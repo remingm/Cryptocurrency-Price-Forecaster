@@ -56,8 +56,10 @@ def format_json(symbol, period, past_close, prediction, backtest_mape, target_va
     return_dict["past"] = reformatted_past
     return_dict["prediction"] = reformatted_pred
 
-    json.dump(return_dict, open(f"{symbol}.json", "w"), indent=4)
+    # Debugging
+    # json.dump(return_dict, open(f"{symbol}.json", "w"), indent=4)
     # print(json.dumps(return_dict, indent=4))
+
     return return_dict
 
 
