@@ -60,7 +60,7 @@ def backtest_model(model, train, scaled, target_var, target_var_idx):
     return backtest_mape
 
 
-def predict(model,coin,plot=False):
+def predict(model, coin, plot=False):
     # Predict future
     pred_len = min(len(coin.scaled_target) // 10, 72)
     # prediction = model.predict(
@@ -68,7 +68,10 @@ def predict(model,coin,plot=False):
     #     series=scaled,
     # )
     prediction = model.predict(
-        series=coin.scaled_target, past_covariates=[coin.scaled_covars], n=pred_len, verbose=True
+        series=coin.scaled_target,
+        past_covariates=[coin.scaled_covars],
+        n=pred_len,
+        verbose=True,
     )
 
     prediction = align_prediction(coin.scaled_covars, prediction, align_with="close")
@@ -91,7 +94,6 @@ def align_prediction(scaled, prediction, align_with="close", idx=-1):
 
 def train_pipeline(coin, validate_model=False):
 
-
     if validate_model:
         # split covariates
         train_target, val_target = split_data(scaled_timeseries=coin.scaled_target)
@@ -103,7 +105,13 @@ def train_pipeline(coin, validate_model=False):
         model = train_model(train_target, train_covar, val_target, val_covar)
         # backtest_mape = backtest_model(model, train, scaled, target_var, target_var_idx)
         eval_model(
-            model, train_target, val_target, train_covar, coin.scaled, coin.target_var, plot=True
+            model,
+            train_target,
+            val_target,
+            train_covar,
+            coin.scaled,
+            coin.target_var,
+            plot=True,
         )
         # except:
         #     pass
@@ -114,8 +122,6 @@ def train_pipeline(coin, validate_model=False):
 
     # Retrain on all data and predict
     model = train_model(coin.scaled_target, coin.scaled_covars)
-    prediction = predict(
-        model, coin, plot=False # todo global plot toggle
-    )
+    prediction = predict(model, coin, plot=False)  # todo global plot toggle
 
     return prediction, backtest_mape

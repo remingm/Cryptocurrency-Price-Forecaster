@@ -41,7 +41,7 @@ def generate_factors(df, target_var, ignore_low_volume_coins=True):
     ts, df = get_return_lags(df, target_var="close")
     ts, df = get_ta(df)
 
-    ts, df = kalman_filter(ts, 'close', df)
+    ts, df = kalman_filter(ts, "close", df)
 
     mvf = MissingValuesFiller()
     ts = mvf.transform(ts)
@@ -61,7 +61,7 @@ def generate_factors(df, target_var, ignore_low_volume_coins=True):
 def kalman_filter(data, target_var, df):
     # Kalman Smoothing
     filtered_timeseries = KalmanFilter(P=1000.0, R=50, Q=1).filter(data[target_var])
-    df['kalman'] = filtered_timeseries.pd_series()
+    df["kalman"] = filtered_timeseries.pd_series()
 
     # Optional plot
     # data[target_var].plot(label='actual')
@@ -86,4 +86,3 @@ def scale_data(coin):
     # coin.scaled = coin.scaler.transform(coin.timeseries)
 
     return coin
-

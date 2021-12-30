@@ -17,7 +17,7 @@ def reverse_transform(coin):
 def format_timestamp_index(past_close, df, prediction):
     # Set index to Unix timestamps
     # past_close.set_index(df["UTC timestamp"][: len(past_close)], inplace=True)
-    past_close = pd.Series(past_close.values, index=df['UTC timestamp'])
+    past_close = pd.Series(past_close.values, index=df["UTC timestamp"])
 
     # Write future timestamps to predictions
     timestamp_len_ms = past_close.index[1] - past_close.index[0]
@@ -56,7 +56,7 @@ def format_json(symbol, period, past_close, prediction, backtest_mape, target_va
     return_dict["past"] = reformatted_past
     return_dict["prediction"] = reformatted_pred
 
-    json.dump(return_dict, open(f"{symbol}.json",'w'), indent=4)
+    json.dump(return_dict, open(f"{symbol}.json", "w"), indent=4)
     # print(json.dumps(return_dict, indent=4))
     return return_dict
 

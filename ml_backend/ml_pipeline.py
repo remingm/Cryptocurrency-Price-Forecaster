@@ -35,9 +35,7 @@ def ml_pipeline(coin, validate=False):
     # todo logging
     print("Success", coin.symbol, coin.period)
     print("Training model for", coin)
-    prediction, backtest_mape = train_pipeline(
-        coin, validate_model=validate
-    )
+    prediction, backtest_mape = train_pipeline(coin, validate_model=validate)
     coin.backtest_mape = backtest_mape
     coin.prediction = prediction
     coin.last_compute = datetime.datetime.utcnow()

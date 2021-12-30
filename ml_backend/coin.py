@@ -39,7 +39,6 @@ class Coin:
         self.covariates = self.timeseries[covar_cols]
         self.target_series = self.timeseries[[self.target_var]]
 
-
     def __str__(self):
         return self.symbol + "-" + self.period
 
