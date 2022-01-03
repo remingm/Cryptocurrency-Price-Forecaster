@@ -34,6 +34,10 @@ Parameters:
     Type: String      
     Description: session signing secret
     NoEcho: true
+  CaDir: 
+    Type: String
+    Description: path to dir containing ssl CA
+    Default: /usr/src/app  
   InstanceType:
     Description: EC2 instance type
     Type: String
@@ -82,14 +86,14 @@ Mappings:
   environment:
     int:
       containerName: stonk-pix-backend-int
-      mongoDBCredentialSecret: stonk-pix-db-credential-prod
-      dbPasswordSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-int-fEsDRg:db-username::'
-      dbUsernameSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-int-fEsDRg:db-password::'
+      dbPasswordSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-int-fEsDRg:db-password::'
+      dbUsernameSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-int-fEsDRg:db-username::'
+      mongoDbUri: 'mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?readPreference=secondaryPreferred&retryWrites=false'  
     prod:
       containerName: stonk-pix-backend-prod
-      mongoDBCredentialSecret: stonk-pix-db-credential-int
-      dbPasswordSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-prod-S3CpMA:db-username::'
-      dbUsernameSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-prod-S3CpMA:db-password::'
+      dbPasswordSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-prod-S3CpMA:db-password::'
+      dbUsernameSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-prod-S3CpMA:db-username::'
+      mongoDbUri: 'mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?readPreference=secondaryPreferred&retryWrites=false'        
 Resources:   
   ECSCluster:
     Type: 'AWS::ECS::Cluster'
@@ -185,7 +189,7 @@ Resources:
             - Name: DB_PASSWORD
               ValueFrom: !FindInMap [environment, !Ref Environment, dbPasswordSecretArn]
             - Name: DB_USERNAME
-              ValueFrom: !FindInMap [environment, !Ref Environment, dbPasswordSecretArn]
+              ValueFrom: !FindInMap [environment, !Ref Environment, dbUsernameSecretArn]
         Environment:
           - Name: NODE_ENV
             Value: !Ref Environment
@@ -193,8 +197,10 @@ Resources:
             Value: '3000'
           - Name: SESSION_SECRET
             Value: !Ref SessionSecret  
+          - Name: 'CA_DIR' 
+            Value: !Ref CaDir
           - Name: MONGODB_URI
-            Value: 'mongodb+srv://<username>:<password>@cluster0.3mglf.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
+            Value: !FindInMap [environment, !Ref Environment, mongoDbUri]
   ECSALB:     
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:
@@ -486,6 +492,11 @@ Resources:
                   - 'secretsmanager:GetSecretValue'
                   - 'kms:Decrypt'
                   - 'ecr:GetAuthorizationToken'
+                  - 'ecr:BatchCheckLayerAvailability'
+                  - 'ecr:BatchGetImage'
+                  - 'ecr:GetDownloadUrlForLayer'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'                  
                 Resource: '*'
 
 Outputs:

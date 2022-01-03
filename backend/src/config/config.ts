@@ -36,3 +36,24 @@ if (!MONGODB_URI) {
   }
   process.exit(1);
 }
+
+// DB Username and Password
+export const DB_PASSWORD = process.env["DB_PASSWORD"];
+export const DB_USERNAME = process.env["DB_USERNAME"];
+
+if (!DB_PASSWORD){
+  logger.error(
+    "No mongo password. Set DB_PASSWORD environment variable."
+  );
+  process.exit(1);
+} 
+
+if (!DB_USERNAME){
+  logger.error(
+    "No mongo password. Set DB_USERNAME environment variable."
+  );
+  process.exit(1);
+} 
+
+// CA directory
+export const CA_DIR = process.env["CA_DIR"];
