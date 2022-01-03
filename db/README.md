@@ -39,4 +39,3 @@ mongodb://stonkpix:<get PW in AWS Secrets manager>@localhost:27017/?ssl=true&ssl
 ### troubleshooting ###
 # make sure port forwarding is running
 # check that ssl CA is in correct path, and referenced correctly in the command
-

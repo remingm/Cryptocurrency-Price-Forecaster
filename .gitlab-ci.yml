@@ -13,7 +13,6 @@ backend-build-image-push-ecr:
     - .build-image-push-ecr 
   only:
     - main
-    - stonk-pix.DbCFT
 
 ml-build-image-push-ecr:
   extends:
@@ -32,5 +31,4 @@ backend-deploy:
     - .deploy 
   only:
     - main
-    - stonk-pix.DbCFT 
 
