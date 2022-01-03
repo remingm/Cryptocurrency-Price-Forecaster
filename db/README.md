@@ -11,15 +11,19 @@
 
 # Steps #
 
-# first pull down the ssl CA and store somewhere like ~/.ssh
+# Pull down ec2 ssh key in order to connect to EC2
+# Get access
+
+
+# Next pull down the DB ssl CA and store somewhere like ~/.ssh
 # you'll reference this path in the following commands
-wget https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+wget https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem -P ~/.ssh
 
 
 # Set up port forwarding using ec2 public IP. After, anything sent to localhost:27017 will be forwarded through the EC2
 # if this fails, double check the EC2 instance is still there and the public IP matches the command
 # Note - this must be actively running before proceeding to next step. 
-ssh -i "~/.ssh/ssh-insilabs-keypair.pem" -L 27017:stonk-pix-db-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017 ec2-user@ec2-54-202-111-44.us-west-2.compute.amazonaws.com -N 
+ssh -i "~/.ssh/ssh-insilabs-keypair.pem" -L 27017:stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017 ec2-user@ec2-54-202-111-44.us-west-2.compute.amazonaws.com -N 
 
 
 ## CHOOSE either connection strategy ##
