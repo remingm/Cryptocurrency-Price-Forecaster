@@ -8,11 +8,11 @@ COINS = [
     "DOT/USD",
     "MANA/USD",
     "SOL/USD",
-    "DOGE/USD",
     "ALGO/USD",
     "XMR/USD",
     "XRP/USD",
     "BCH/USD",
+    "SHIB/USD",
 ]
 
 TIMEPERIODS = ["1d"]

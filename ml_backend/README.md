@@ -1,5 +1,6 @@
 # ML Backend Server
 
+Temporal convolutional network that uses 90+ features and technical indicators to forecast smoothed price.
 
 1. Get data: `get_data.py`
 2. Generate factors/features: `generate_factors.py`
@@ -40,10 +41,10 @@ After running `docker-compose up`, Mongo will be accessible at the default `loca
 Change database name in `config.py`.
 
 Here's how to inspect the database:
-####Start shell in container
+###Start shell in container
 `docker exec -it ml_backend_mongo_1 bash`  
 
-####Show the DB
+###Show the DB
 Run `mongo` to enter the mongo shell. Then, from within the mongo shell, run:
 
 `use db_name`
