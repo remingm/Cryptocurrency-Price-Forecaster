@@ -32,3 +32,11 @@ backend-deploy:
   only:
     - main
 
+ml-backend-deploy:
+  stage: deploy
+  extends:
+    - .ml-backend-variables
+    - .int-environment    
+    - .deploy 
+  only:
+    - main
