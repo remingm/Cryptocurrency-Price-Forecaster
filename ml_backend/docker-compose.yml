@@ -2,13 +2,13 @@ version: "3.7"
 
 services:
   ml:
-    image: python:3.8-buster
+    image: python:3.9-buster
     command: sh -c "pip install -r requirements.txt && python3 ml_pipeline.py"
     working_dir: /app
     volumes:
       - ./:/app
     environment:
-      MONGO_HOST: mongo
+      MONGODB_URI: mongo
   mongo:
     image: mongo:4.4
     volumes:

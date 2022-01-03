@@ -2,6 +2,8 @@
 
 Temporal convolutional network that uses 90+ features and technical indicators to forecast smoothed price.
 
+Requires environment variable `MONGODB_URI`
+
 1. Get data: `get_data.py`
 2. Generate factors/features: `generate_factors.py`
 3. Train models: `training.py`
