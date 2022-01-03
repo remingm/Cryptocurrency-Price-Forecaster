@@ -9,12 +9,18 @@ services:
       - ./:/app
     environment:
       MONGODB_URI: mongo
+      DB_PASSWORD: example
+      DB_USERNAME: root
+
   mongo:
     image: mongo:4.4
     volumes:
       - mongo-data:/data/db
     ports:
       - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
 
 volumes:
   mongo-data:

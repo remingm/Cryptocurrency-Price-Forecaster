@@ -72,12 +72,15 @@ def write_to_db(forecasts, DB_NAME):
     mongo_host = os.environ["MONGODB_URI"]
 
     # Handle mongo error if there is a '%' in the password
-    if ":" in mongo_host and "@" in mongo_host:
-        pw = mongo_host.split("@")[0].split(":")[-1]
+    if "DB_PASSWORD" in os.environ.keys() and "DB_USERNAME" in os.environ.keys():
+        pw = os.environ["DB_PASSWORD"]
         pw_parsed = urllib.parse.quote_plus(pw)
-        mongo_host = mongo_host.replace(pw, pw_parsed)
+        username = urllib.parse.quote_plus(os.environ["DB_USERNAME"])
+        client = pymongo.MongoClient(mongo_host, username=username, password=pw_parsed)
+    else:
+        print("WARNING: DB_PASSWORD or DB_USERNAME env vars missing.")
+        client = pymongo.MongoClient(mongo_host)
 
-    client = pymongo.MongoClient(mongo_host)
     db = client[DB_NAME]  # todo new db name
 
     for f in forecasts:
