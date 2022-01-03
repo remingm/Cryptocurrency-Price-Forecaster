@@ -1,3 +1,5 @@
+import urllib.parse
+
 import pymongo
 import pprint
 import json
@@ -65,11 +67,17 @@ def format_json(symbol, period, past_close, prediction, backtest_mape, target_va
 
 def write_to_db(forecasts, DB_NAME):
     # Write forecasts to mongo
-    if "MONGO_HOST" not in os.environ.keys():
-        os.environ["MONGO_HOST"] = "localhost"
-    mongo_host = os.environ["MONGO_HOST"]
+    if "MONGODB_URI" not in os.environ.keys():
+        os.environ["MONGODB_URI"] = "localhost"
+    mongo_host = os.environ["MONGODB_URI"]
 
-    client = pymongo.MongoClient(mongo_host, 27017)
+    # Handle mongo error if there is a '%' in the password
+    if ":" in mongo_host and "@" in mongo_host:
+        pw = mongo_host.split("@")[0].split(":")[-1]
+        pw_parsed = urllib.parse.quote_plus(pw)
+        mongo_host = mongo_host.replace(pw, pw_parsed)
+
+    client = pymongo.MongoClient(mongo_host)
     db = client[DB_NAME]  # todo new db name
 
     for f in forecasts:
@@ -106,6 +114,7 @@ def output_pipeline(DB_NAME, coin):
     try:
         write_to_db([coin.return_dict], DB_NAME)
         print("Success")
-    except:
+    except Exception as e:
         print("Error writing to mongo")
+        print(e)
     return coin
