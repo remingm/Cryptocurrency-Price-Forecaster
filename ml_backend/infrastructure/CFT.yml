@@ -84,12 +84,12 @@ Mappings:
       containerName: stonk-pix-ml-backend-int
       dbPasswordSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-int-fEsDRg:db-password::'
       dbUsernameSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-int-fEsDRg:db-username::'
-      mongoDbUri: 'mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?readPreference=secondaryPreferred&retryWrites=false'  
+      mongoDbUri: 'mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?readPreference=secondaryPreferred&retryWrites=false&tls=true&tls_ca_certs=/app/rds-combined-ca-bundle.pem'  
     prod:
       containerName: stonk-pix-ml-backend-prod
       dbPasswordSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-prod-S3CpMA:db-password::'
       dbUsernameSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-prod-S3CpMA:db-username::'
-      mongoDbUri: 'mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?readPreference=secondaryPreferred&retryWrites=false'        
+      mongoDbUri: 'mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?readPreference=secondaryPreferred&retryWrites=false&tls=true&tls_ca_certs=/app/rds-combined-ca-bundle.pem'
 Resources:   
   ECSCluster:
     Type: 'AWS::ECS::Cluster'
@@ -250,11 +250,6 @@ Resources:
           - !FindInMap [static, all, appName]
           - !Ref Environment
       DesiredCount: 1
-      # LoadBalancers:
-      #   - ContainerName: !FindInMap [environment, !Ref Environment, containerName ]
-      #     ContainerPort: '3000'
-      #     TargetGroupArn: !Ref ECSTG
-      #Role: !Ref ECSServiceRole
       TaskDefinition: !Ref taskdefinition
   ECSServiceRole:
     Type: 'AWS::IAM::Role'
