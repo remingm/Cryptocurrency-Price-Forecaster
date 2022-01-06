@@ -41,14 +41,12 @@ frontend-deploy:
     - .deploy
   only:
     - main
-    - front-end
 
 build-frontend:
   image: node:latest
   stage: build
   only:
     - main
-    - front-end
   script:
     - cd ./frontend/
     - npm install
@@ -65,7 +63,6 @@ deploy-frontend:
   stage: post-deploy
   only:
     - main
-    - front-end
   before_script:
     - aws --version
   script:
