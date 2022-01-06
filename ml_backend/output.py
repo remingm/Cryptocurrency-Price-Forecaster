@@ -1,5 +1,3 @@
-import urllib.parse
-
 import pymongo
 import pprint
 import json
@@ -71,21 +69,20 @@ def write_to_db(forecasts, DB_NAME):
         os.environ["MONGODB_URI"] = "localhost"
     mongo_host = os.environ["MONGODB_URI"]
 
-    # Handle mongo error if there is a '%' in the password
     if "DB_PASSWORD" in os.environ.keys() and "DB_USERNAME" in os.environ.keys():
         pw = os.environ["DB_PASSWORD"]
-        pw_parsed = urllib.parse.quote_plus(pw)
-        username = urllib.parse.quote_plus(os.environ["DB_USERNAME"])
-        client = pymongo.MongoClient(mongo_host, username=username, password=pw_parsed)
+        username = os.environ["DB_USERNAME"]
+        client = pymongo.MongoClient(mongo_host, username=username, password=pw)
     else:
         print("WARNING: DB_PASSWORD or DB_USERNAME env vars missing.")
         client = pymongo.MongoClient(mongo_host)
 
-    db = client[DB_NAME]  # todo new db name
+    db = client[DB_NAME]
 
     for f in forecasts:
         db.coins.delete_many({"symbol": f["symbol"], "period": f["period"]})
         db.coins.insert_one(f)
+        print(f"Wrote {f['symbol']}-{f['period']} to database at {mongo_host}.")
 
     # Debugging
     if False:
@@ -100,7 +97,6 @@ def write_to_db(forecasts, DB_NAME):
             pprint.pprint(c.keys())
 
 
-# todo create coin object to store all these vars as fields
 def output_pipeline(DB_NAME, coin):
     past_close, prediction = reverse_transform(coin)
     coin.past_close, coin.prediction = format_timestamp_index(
