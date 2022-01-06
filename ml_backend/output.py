@@ -82,6 +82,7 @@ def write_to_db(forecasts, DB_NAME):
     for f in forecasts:
         db.coins.delete_many({"symbol": f["symbol"], "period": f["period"]})
         db.coins.insert_one(f)
+        print(f"Wrote {f['symbol']}-{f['period']} to database at {mongo_host}.")
 
     # Debugging
     if False:
