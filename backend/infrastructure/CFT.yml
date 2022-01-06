@@ -499,6 +499,83 @@ Resources:
                   - 'logs:PutLogEvents'                  
                 Resource: '*'
 
+# Security group for APIGW VPC Link
+  APIGWVPClinkSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref 'VpcId'
+      GroupName: !Join 
+        - '-'
+        - - 'Fn::FindInMap':
+              - static
+              - all
+              - appName
+          - vpclink-SG
+          - !Ref Environment      
+      GroupDescription: APIGW vpclink security group
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+
+  PrivateAPIGWvpcLink:  
+    Type: AWS::ApiGatewayV2::VpcLink
+    Properties: 
+      Name: !Join 
+        - '-'
+        - - 'Fn::FindInMap':
+              - static
+              - all
+              - appName
+          - apigw-vpclink
+          - !Ref Environment 
+      SecurityGroupIds: 
+        - !Ref APIGWVPClinkSG
+      SubnetIds: !Ref SubnetId
+
+# -------------------------------------------------------------------------
+# Deploy API GW HTTP API route and integration to private ALB via VPC Link
+# -------------------------------------------------------------------------
+
+  HttpApiALB:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: alb-HTTP-api
+      Description: HTTP API ALB
+      ProtocolType: HTTP
+
+  APIRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApiALB
+      RouteKey: 'ANY /'
+      Target: !Join
+        - /
+        - - integrations
+          - !Ref APIIntegration
+
+  APIIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApiALB
+      Description: Private ALB Integration
+      IntegrationType: HTTP_PROXY
+      IntegrationMethod: ANY
+      ConnectionType: VPC_LINK
+      ConnectionId: 
+        !Ref PrivateAPIGWvpcLink
+      IntegrationUri: 
+        !Ref ALBListener
+      PayloadFormatVersion: '1.0'
+
+  APIStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      StageName: !Ref Environment
+      AutoDeploy: true
+      ApiId: !Ref HttpApiALB                                
+
 Outputs:
   ecsservice:
     Value: !Ref service
