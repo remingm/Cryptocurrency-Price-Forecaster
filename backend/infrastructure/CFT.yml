@@ -246,8 +246,8 @@ Resources:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     DependsOn: ECSALB
     Properties:
-      HealthCheckIntervalSeconds: 10
-      HealthCheckPath: /
+      HealthCheckIntervalSeconds: 60
+      HealthCheckPath: /api/v1/health
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2

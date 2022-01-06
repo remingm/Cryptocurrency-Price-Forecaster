@@ -151,6 +151,10 @@ coinRouter.get("/:coin/:period", coinController.getCoinData);
 
 baseRouter.use("/coins", coinRouter);
 
+baseRouter.get("/health", (req, res) => {
+  res.status(200).send("Ok");
+});
+
 app.use("/api/v1", baseRouter);
 
 export default app;
