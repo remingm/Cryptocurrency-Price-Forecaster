@@ -3,11 +3,13 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: >
   Creates the infrastructure to host and expose a Single Page Application:
       - An Amazon CloudFront distribution to expose the application
-Parameters: {}
+Parameters: 
+  BucketStackName:
+    Description: Name of an active CloudFormation Stack that holds the S3 bucket and OAI  for the front end 
+    Type: String
+    Default: front-end-s3-buckets
 Resources:
-  # The Amazon CloudFront distribution exposing our Single Page Application
   CFDistribution:
-    #checkov:skip=CKV_AWS_68: "For demo purposes and to reduce cost, no WAF is configured"
     Type: "AWS::CloudFront::Distribution"
     DependsOn:
       - CFOriginAccessIdentity
@@ -17,7 +19,7 @@ Resources:
           - DomainName: !Sub "stonkpix-frontend.s3.us-west-2.amazonaws.com"
             Id: myS3Origin
             S3OriginConfig:
-              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CFOriginAccessIdentity}"
+              OriginAccessIdentity: Fn::ImportValue: !Sub: "origin-access-identity/cloudfront/${BucketStackName}-OriginAccessIdentity"
         Enabled: "true"
         DefaultRootObject: index.html
         DefaultCacheBehavior:
@@ -33,10 +35,3 @@ Resources:
         Logging:
           Bucket: !Sub "stonkpix-frontend-logs.s3.us-west-2.amazonaws.com"
           Prefix: "cloudfront-access-logs"
-
-  # The Amazon CloudFront origin access identity
-  CFOriginAccessIdentity:
-    Type: "AWS::CloudFront::CloudFrontOriginAccessIdentity"
-    Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: !Sub "access-identity-stonpix-frontend"
