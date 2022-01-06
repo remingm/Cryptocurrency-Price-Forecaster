@@ -1,7 +1,7 @@
 import time
 import datetime
 from get_data import get_usd_markets, get_ohlcv_series, exchange, plot_df
-from generate_factors import generate_factors
+from generate_factors import generate_factors, scale_data
 from training import train_pipeline
 from output import output_pipeline
 from coin import Coin
@@ -18,23 +18,28 @@ def ml_pipeline(coin, validate=False):
 
     # volume filter. scaler is failing on coins with low vol 1m
     print("Generating factors for", coin)
-    coin.scaled, coin.scaler = generate_factors(
+    coin.timeseries, coin.df = generate_factors(
         coin.df, coin.target_var, ignore_low_volume_coins=True
     )
-    if coin.scaled == False:
+
+    if coin.timeseries == False:
         print("fail", coin.symbol, coin.period)
-    else:
-        # todo logging
-        print("Success", coin.symbol, coin.period)
-        print("Training model for", coin)
-        prediction, backtest_mape = train_pipeline(
-            coin.scaled, target_var=coin.target_var, validate_model=validate
-        )
-        coin.backtest_mape = backtest_mape
-        coin.prediction = prediction
-        coin.last_compute = datetime.datetime.utcnow()
-        print("Running output pipeline for", coin)
-        coin = output_pipeline(DB_NAME, coin)
+        return coin
+
+    # split covars
+    coin.split_covariates()
+
+    # scale
+    coin = scale_data(coin)
+
+    print("Success", coin.symbol, coin.period)
+    print("Training model for", coin)
+    prediction, backtest_mape = train_pipeline(coin, validate_model=validate)
+    coin.backtest_mape = backtest_mape
+    coin.prediction = prediction
+    coin.last_compute = datetime.datetime.utcnow()
+    print("Running output pipeline for", coin)
+    coin = output_pipeline(DB_NAME, coin)
     return coin
 
 
@@ -49,13 +54,13 @@ def make_coins_set(COINS, TIMEPERIODS, target_var="close"):
     return coins
 
 
-def main_ml_loop(coins, sleep_time):
+def main_ml_loop(coins, SLEEP_TIME, validate):
     processed = set()
     while len(coins) > 0:
         coin = coins.pop()
         if coin.check_compute_time():
             print(f"Timedelta expired, computing {coin}")
-            coin = ml_pipeline(coin, validate=False)
+            coin = ml_pipeline(coin, validate=validate)
         else:
             print(f"Timedelta has not yet expired for {coin}")
 
@@ -70,6 +75,6 @@ def main_ml_loop(coins, sleep_time):
 
 
 if __name__ == "__main__":
-    coins = make_coins_set(COINS, TIMEPERIODS, target_var="close")
+    coins = make_coins_set(COINS, TIMEPERIODS, target_var="kalman")
     while True:
-        coins = main_ml_loop(coins, SLEEP_TIME)
+        coins = main_ml_loop(coins, SLEEP_TIME, validate=False)

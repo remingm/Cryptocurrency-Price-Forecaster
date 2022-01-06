@@ -1,5 +1,6 @@
 # ML Backend Server
 
+Temporal convolutional network that uses 90+ features and technical indicators to forecast smoothed price.
 
 1. Get data: `get_data.py`
 2. Generate factors/features: `generate_factors.py`
@@ -7,7 +8,15 @@
 4. Forecast: `training.py`
 5. Format and write to mongo:`output.py`
 
-There are two options for installing: Docker or Conda.
+There are two installation options: Docker or Conda.
+
+## Required environment variables
+```
+MONGODB_URI
+DB_USERNAME
+DB_PASSWORD
+```
+See `docker-compose.yml` for examples. If these are not provided `MONGODB_URI` will default to `localhost`.
 
 ## Docker Compose
 This starts the ML backend and Mongo at port 27017. The ML backend will continuously populate the Mongo DB with forecasts. Run all commands from this directory.
@@ -40,10 +49,10 @@ After running `docker-compose up`, Mongo will be accessible at the default `loca
 Change database name in `config.py`.
 
 Here's how to inspect the database:
-####Start shell in container
+###Start shell in container
 `docker exec -it ml_backend_mongo_1 bash`  
 
-####Show the DB
+###Show the DB
 Run `mongo` to enter the mongo shell. Then, from within the mongo shell, run:
 
 `use db_name`

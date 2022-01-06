@@ -2,15 +2,29 @@
 
 this is the repo for the revolutionary stonk pixer. utilizing ai, blockchain, cloud, and synergy
 
-to install:
+###### Running locally #######
 
+# download ssl certs for documentdb
+`wget -P ~/.ssh https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem`
+
+
+# set environment variables - add to backend/src/.env or set in linux
+NODE_ENV=int
+PORT=3000
+SESSION_SECRET=asasdasd
+MONGODB_URI=mongodb://<username>:<password>@stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/?ssl=true&ssl_ca_certs=<path to ssl cert>/rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false
+DB_PASSWORD=<locate stonk-pix-db-credential-int in secrets manager>
+DB_USERNAME=<locate stonk-pix-db-credential-int in secrets manager>
+
+to install:
 `npm install`
 
 to run w/ automatic build refresh:
-
 `npm run watch`
 
-# docker usage
+then visit localhost:3000/
+
+###### docker usage ######
 
 (note: currently broken as of 10/24 due to mongo not being installed in the docker image)
 
@@ -20,7 +34,7 @@ to build:
 
 to start:
 
-`docker run -p 3000:3000 -d stonk-pix-ai-backend`
+`docker run -p 3000:3000 -d stonk-pix-ai-backend --env-file <path to env file>`
 
 then visit localhost:3000/
 

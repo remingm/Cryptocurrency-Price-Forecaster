@@ -1,13 +1,25 @@
 import { InteractionMode } from "chart.js";
-import { useEffect } from "react";
 import { Line } from "react-chartjs-2";
-const Graph = (props: any) => {
+import { Price } from "./model";
+
+interface graphProps {
+  pastPrices: Price[];
+  predictionPrices: Price[];
+}
+
+const Graph = (props: graphProps) => {
+  const past = getGraphablePrices(props.pastPrices);
+  const prediction = getGraphablePrices(props.predictionPrices);
+
+  addBridgePoint(past, prediction);
+
   const data = {
+    labels: [props],
     datasets: [
       // past prices
       {
         label: "past",
-        data: props.pastPrices,
+        data: past,
         fill: true,
         backgroundColor: "rgb(55, 48, 163, .4)",
         borderColor: "rgba(55, 48, 163, 0.7)",
@@ -16,7 +28,7 @@ const Graph = (props: any) => {
       {
         // prediction prices
         label: "prediction",
-        data: props.predictionPrices,
+        data: prediction,
         fill: true,
         borderDash: [5, 5],
         tension: 0.4,
@@ -34,17 +46,33 @@ const Graph = (props: any) => {
     plugins: {
       legend: { display: false },
     },
+    parsing: {
+      xAxisKey: "timestamp",
+      yAxisKey: "close",
+    },
     scales: {
       y: {
-        display: false,
+        display: true,
       },
       x: {
         display: false,
       },
     },
   };
-
   return <Line data={data} options={options} />;
 };
+
+function getGraphablePrices(prices: Price[]): Price[] {
+  return prices.map((price) => {
+    return {
+      timestamp: new Date(Number(price.timestamp)).toLocaleDateString("en-US"),
+      close: price.close,
+    };
+  });
+}
+
+function addBridgePoint(firstArr: any[], secondArr: any[]): void {
+  secondArr.unshift(firstArr[firstArr.length - 1]);
+}
 
 export default Graph;

@@ -8,39 +8,31 @@ def split_data(scaled_timeseries):
     return train, val
 
 
-def train_model(train, val=None):
+def train_model(target_series, covariates, val=None, val_covar=None):
+    pred_len = min(len(target_series) // 10, 72)
     model = TCNModel(
-        input_chunk_length=48,
-        output_chunk_length=24,
+        input_chunk_length=pred_len + 1,
+        output_chunk_length=pred_len,
         n_epochs=30,
         random_state=0,
         optimizer_kwargs={"lr": 0.001},
     )
 
     if val == None:
-        model.fit(series=train, verbose=True)
+        model.fit(series=target_series, past_covariates=[covariates], verbose=True)
     else:
-        model.fit(series=train, val_series=val, verbose=True)
+        # model.fit(series=target_series, val_series=val, verbose=True)
+        model.fit(series=target_series, past_covariates=[covariates], verbose=True)
+        # model.fit(series=target_series, val_series=val, past_covariates=covariates,val_past_covariates=val_covar,verbose=True)
     return model
 
 
-def eval_model(model, train, val, scaled, target_var, plot=False):
-    prediction = model.predict(
-        n=len(val),
-        series=train,
-    )
-    # scaled[target_var].plot(new_plot=True,label="actual")
-    # prediction[target_var].plot(label="forecast", low_quantile=0.05, high_quantile=0.95)
-    # print("MAPE = {:.2f}%".format(mape(scaled[target_var], prediction[target_var])))
-    # print("sMAPE = {:.2f}%".format(smape(scaled[target_var], prediction[target_var])))
-    # print(
-    #     "MASE = {:.2f}%".format(
-    #         mase(scaled[target_var], pred[target_var], insample=train[target_var])
-    #     )
-    # )
+def eval_model(model, train, val, train_covar, scaled, target_var, plot=False):
+    pred_len = min(len(train) // 10, 72)
+    prediction = model.predict(n=pred_len, series=train, past_covariates=train_covar)
 
     prediction = align_prediction(
-        scaled, prediction, target_var="close", idx=len(train)
+        scaled, prediction, align_with="close", idx=len(train)
     )
 
     if plot:
@@ -68,49 +60,68 @@ def backtest_model(model, train, scaled, target_var, target_var_idx):
     return backtest_mape
 
 
-def predict(model, scaled, target_var, plot=False):
+def predict(model, coin, plot=False):
     # Predict future
-    pred_len = min(len(scaled) // 10, 72)
+    pred_len = min(len(coin.scaled_target) // 10, 72)
+    # prediction = model.predict(
+    #     n=pred_len,
+    #     series=scaled,
+    # )
     prediction = model.predict(
+        series=coin.scaled_target,
+        past_covariates=[coin.scaled_covars],
         n=pred_len,
-        # series=scaled,
+        verbose=True,
     )
 
-    prediction = align_prediction(scaled, prediction, target_var="close")
+    prediction = align_prediction(coin.scaled_covars, prediction, align_with="close")
+    coin.prediction = prediction
 
+    plot = True
     if plot:
-        scaled["close"].plot(new_plot=True, label="Past")
-        prediction[target_var].plot(label="Forecast")
+        coin.scaled_covars["close"].plot(new_plot=True, label="Past")
+        prediction[coin.target_var].plot(label="Forecast")
 
     return prediction
 
 
-def align_prediction(scaled, prediction, target_var="close", idx=-1):
+def align_prediction(scaled, prediction, align_with="close", idx=-1):
     # align without removing other pred columns
-    value_at_first_step = float(scaled[target_var][idx].values())
+    value_at_first_step = float(scaled[align_with][idx].values())
     prediction = prediction.rescale_with_value(value_at_first_step)
     return prediction
 
 
-def train_pipeline(scaled, target_var="close", validate_model=False):
-    target_var_idx = scaled.columns.get_loc(target_var)
-    train, val = split_data(scaled_timeseries=scaled)
+def train_pipeline(coin, validate_model=False):
 
     if validate_model:
+        # split covariates
+        train_target, val_target = split_data(scaled_timeseries=coin.scaled_target)
+        train_covar, val_covar = split_data(scaled_timeseries=coin.covariates)
+        # train, val = split_data(scaled_timeseries=scaled)
+
         # Holdout val set and score
-        try:
-            model = train_model(train, val)
-            # backtest_mape = backtest_model(model, train, scaled, target_var, target_var_idx)
-            eval_model(model, train, val, scaled, target_var, plot=True)
-        except:
-            pass
+        # try:
+        model = train_model(train_target, train_covar, val_target, val_covar)
+        # backtest_mape = backtest_model(model, train, scaled, target_var, target_var_idx)
+        eval_model(
+            model,
+            train_target,
+            val_target,
+            train_covar,
+            coin.scaled,
+            coin.target_var,
+            plot=True,
+        )
+        # except:
+        #     pass
         backtest_mape = -1
 
     else:
         backtest_mape = -1
 
     # Retrain on all data and predict
-    model = train_model(scaled)
-    prediction = predict(model, scaled, target_var, plot=False)
+    model = train_model(coin.scaled_target, coin.scaled_covars)
+    prediction = predict(model, coin, plot=False)  # todo global plot toggle
 
     return prediction, backtest_mape

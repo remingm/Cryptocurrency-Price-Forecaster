@@ -5,17 +5,19 @@ import pandas as pd
 import os
 
 
-def reverse_transform(scaler, scaled, prediction, target_var):
+def reverse_transform(coin):
     # JSON out
-    past_close = scaler.inverse_transform(scaled)["close"].pd_dataframe()
-    prediction = scaler.inverse_transform(prediction)[target_var].pd_dataframe()
+    # past_close = coin.scaler.inverse_transform(coin.scaled)["close"].pd_dataframe()
+    past_close = coin.df["close"]
+    prediction = coin.scaler.inverse_transform(coin.prediction).pd_dataframe()
 
     return past_close, prediction
 
 
 def format_timestamp_index(past_close, df, prediction):
     # Set index to Unix timestamps
-    past_close.set_index(df["UTC timestamp"][: len(past_close)], inplace=True)
+    # past_close.set_index(df["UTC timestamp"][: len(past_close)], inplace=True)
+    past_close = pd.Series(past_close.values, index=df["UTC timestamp"])
 
     # Write future timestamps to predictions
     timestamp_len_ms = past_close.index[1] - past_close.index[0]
@@ -44,7 +46,7 @@ def format_json(symbol, period, past_close, prediction, backtest_mape, target_va
 
     reformatted_past = []
     reformatted_pred = []
-    past_dict = json.loads(past_close.to_json())[target_var]
+    past_dict = json.loads(past_close.to_json())
     pred_dict = json.loads(prediction.to_json())[target_var]
     for key in past_dict.keys():
         reformatted_past.append({"timestamp": int(key), "close": past_dict[key]})
@@ -54,23 +56,33 @@ def format_json(symbol, period, past_close, prediction, backtest_mape, target_va
     return_dict["past"] = reformatted_past
     return_dict["prediction"] = reformatted_pred
 
-    # json.dump(return_dict, open(f"{symbol}.json",'w'), indent=4)
+    # Debugging
+    # json.dump(return_dict, open(f"{symbol}.json", "w"), indent=4)
     # print(json.dumps(return_dict, indent=4))
+
     return return_dict
 
 
 def write_to_db(forecasts, DB_NAME):
     # Write forecasts to mongo
-    if "MONGO_HOST" not in os.environ.keys():
-        os.environ["MONGO_HOST"] = "localhost"
-    mongo_host = os.environ["MONGO_HOST"]
+    if "MONGODB_URI" not in os.environ.keys():
+        os.environ["MONGODB_URI"] = "localhost"
+    mongo_host = os.environ["MONGODB_URI"]
 
-    client = pymongo.MongoClient(mongo_host, 27017)
-    db = client[DB_NAME]  # todo new db name
+    if "DB_PASSWORD" in os.environ.keys() and "DB_USERNAME" in os.environ.keys():
+        pw = os.environ["DB_PASSWORD"]
+        username = os.environ["DB_USERNAME"]
+        client = pymongo.MongoClient(mongo_host, username=username, password=pw)
+    else:
+        print("WARNING: DB_PASSWORD or DB_USERNAME env vars missing.")
+        client = pymongo.MongoClient(mongo_host)
+
+    db = client[DB_NAME]
 
     for f in forecasts:
         db.coins.delete_many({"symbol": f["symbol"], "period": f["period"]})
         db.coins.insert_one(f)
+        print(f"Wrote {f['symbol']}-{f['period']} to database at {mongo_host}.")
 
     # Debugging
     if False:
@@ -85,11 +97,8 @@ def write_to_db(forecasts, DB_NAME):
             pprint.pprint(c.keys())
 
 
-# todo create coin object to store all these vars as fields
 def output_pipeline(DB_NAME, coin):
-    past_close, prediction = reverse_transform(
-        coin.scaler, coin.scaled, coin.prediction, coin.target_var
-    )
+    past_close, prediction = reverse_transform(coin)
     coin.past_close, coin.prediction = format_timestamp_index(
         past_close, coin.df, prediction
     )
@@ -104,6 +113,7 @@ def output_pipeline(DB_NAME, coin):
     try:
         write_to_db([coin.return_dict], DB_NAME)
         print("Success")
-    except:
+    except Exception as e:
         print("Error writing to mongo")
+        print(e)
     return coin

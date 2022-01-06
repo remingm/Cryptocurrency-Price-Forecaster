@@ -9,6 +9,9 @@ WORKDIR /usr/src/app
 # where available (npm@5+)
 COPY package*.json ./
 
+RUN wget https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+RUN chmod 777 /usr/src/app/rds-combined-ca-bundle.pem 
+
 RUN npm install
 # If you are building your code for production
 # RUN npm ci --only=production

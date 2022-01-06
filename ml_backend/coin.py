@@ -13,6 +13,7 @@ class Coin:
         self.df = None
         self.backtest_mape = None
         self.last_compute = None
+        self.timeseries = None
 
     def check_compute_time(self):
         convserion_dict = {
@@ -30,6 +31,13 @@ class Coin:
             return True
         delta = datetime.timedelta(minutes=convserion_dict[self.period])
         return datetime.datetime.utcnow() - self.last_compute >= delta
+
+    def split_covariates(self):
+        # covariates
+        covar_cols = list(self.timeseries.columns.values)
+        covar_cols.remove(self.target_var)
+        self.covariates = self.timeseries[covar_cols]
+        self.target_series = self.timeseries[[self.target_var]]
 
     def __str__(self):
         return self.symbol + "-" + self.period

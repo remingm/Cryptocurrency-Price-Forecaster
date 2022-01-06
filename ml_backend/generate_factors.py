@@ -38,31 +38,49 @@ def get_return_lags(df, target_var="close"):
 
 
 def generate_factors(df, target_var, ignore_low_volume_coins=True):
-    covars, df = get_return_lags(df, target_var="close")
-    covars, df = get_ta(df)
+    ts, df = get_return_lags(df, target_var="close")
+    ts, df = get_ta(df)
+
+    ts, df = kalman_filter(ts, "close", df)
 
     mvf = MissingValuesFiller()
-    covars = mvf.transform(covars)
+    ts = mvf.transform(ts)
 
     if not ignore_low_volume_coins:
         # Convert to DF to remove inf and NaN. Will only happen for coins with periods of 0 volume.
-        df = covars.pd_dataframe().replace([np.inf, -np.inf], np.nan)
+        df = ts.pd_dataframe().replace([np.inf, -np.inf], np.nan)
         df = df.interpolate(imit_direction="both")
-        covars = TimeSeries.from_dataframe(df)
+        ts = TimeSeries.from_dataframe(df)
     elif np.isinf(df).values.sum() > 0:
         # If coin has a candle with no volume, don't spend compute on it.
         return False, False
 
-    # Scale target
-    scaler = Scaler()
-    # np.float64 error here. Prob low volume coins. ValueError: Input contains infinity or a value too large for dtype('float64').
-    scaled = scaler.fit_transform(covars)
-    scaled.describe()
-    return scaled, scaler
+    return ts, df
 
 
-def kalman_filter(data, target_var):
+def kalman_filter(data, target_var, df):
     # Kalman Smoothing
-    filtered = KalmanFilter(P=1000.0, R=50, Q=1).filter(data[target_var])
+    filtered_timeseries = KalmanFilter(P=1000.0, R=50, Q=1).filter(data[target_var])
+    df["kalman"] = filtered_timeseries.pd_series()
+
+    # Optional plot
     # data[target_var].plot(label='actual')
-    # filtered.univariate_component(0).plot(label="Filtered")
+    # filtered_timeseries.plot(label="Filtered")
+
+    ts = TimeSeries.from_dataframe(
+        df, fill_missing_dates=True
+    )  # time_col="UTC timestamp")
+
+    return ts, df
+
+
+def scale_data(coin):
+    # Scale target
+    coin.scaler = Scaler()
+    coin.scaled_target = coin.scaler.fit_transform(coin.target_series)
+
+    # scale covars
+    coin.scaler_covars = Scaler()
+    coin.scaled_covars = coin.scaler_covars.fit_transform(coin.covariates)
+
+    return coin
