@@ -1,16 +1,15 @@
 import mongoose, { Number, Schema, Document } from "mongoose";
 
 
+export interface Price {
+    timestamp: string,
+    close: number
+}
+
 export interface ICoin extends Document {
     symbol: string,
-    past: [{
-        timestamp: string,
-        close: number
-    }],
-    prediction: [{
-        timestamp: string,
-        close: number
-    }],
+    past: Array<Price>,
+    prediction: Array<Price>,
     period: string,
     MAPE: number
 }
