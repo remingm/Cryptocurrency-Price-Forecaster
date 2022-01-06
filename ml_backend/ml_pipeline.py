@@ -32,7 +32,6 @@ def ml_pipeline(coin, validate=False):
     # scale
     coin = scale_data(coin)
 
-    # todo logging
     print("Success", coin.symbol, coin.period)
     print("Training model for", coin)
     prediction, backtest_mape = train_pipeline(coin, validate_model=validate)

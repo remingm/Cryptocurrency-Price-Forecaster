@@ -1,6 +1,6 @@
 import StatusCodes from "http-status-codes";
 import { Request, Response } from "express";
-import Coin from "../../../ts_lib/models/CoinModel";
+import Coin from "../models/CoinModel";
 
 // const userDao = new UserDao();
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;

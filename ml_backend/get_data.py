@@ -14,7 +14,6 @@ def get_usd_markets(exchange):
         if s.split("/")[1] == "USD":
             usd_pairs.add(s)
     print(len(usd_pairs), "USD pairs available.")
-    # todo filter out non crypto pairs and usdt, other currencies, EUR, AUD, etc
     return usd_pairs
 
 
@@ -42,11 +41,6 @@ def plot_df(df, symbol, candle_len):
     fig = ax.get_figure()
     symbol = symbol.split("/")[0]
     fig.savefig(f"{symbol}-{candle_len}.png")
-
-
-def volume_filter():
-    # todo don't waste compute on low vol coins
-    pass
 
 
 # todo store data in dask, tinydb, or sqlite

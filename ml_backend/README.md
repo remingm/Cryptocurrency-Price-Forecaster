@@ -8,7 +8,7 @@ Temporal convolutional network that uses 90+ features and technical indicators t
 4. Forecast: `training.py`
 5. Format and write to mongo:`output.py`
 
-There are two options for installing: Docker or Conda.
+There are two installation options: Docker or Conda.
 
 ## Required environment variables
 ```
@@ -16,6 +16,7 @@ MONGODB_URI
 DB_USERNAME
 DB_PASSWORD
 ```
+See `docker-compose.yml` for examples. If these are not provided `MONGODB_URI` will default to `localhost`.
 
 ## Docker Compose
 This starts the ML backend and Mongo at port 27017. The ML backend will continuously populate the Mongo DB with forecasts. Run all commands from this directory.
