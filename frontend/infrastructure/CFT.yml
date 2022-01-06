@@ -34,8 +34,7 @@ Resources:
                 Fn::Join:
                   - ""
                   - - "origin-access-identity/cloudfront/"
-                    - !Ref BucketStackName
-                    - "OriginAccessIdentity"
+                    - Fn::ImportValue: !Sub "${BucketStackName}-OriginAccessIdentity"
         Enabled: "true"
         DefaultRootObject: index.html
         DefaultCacheBehavior:
