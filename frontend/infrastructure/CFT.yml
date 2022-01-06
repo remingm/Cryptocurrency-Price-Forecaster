@@ -3,23 +3,25 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: >
   Creates the infrastructure to host and expose a Single Page Application:
       - An Amazon CloudFront distribution to expose the application
-Parameters: 
+Parameters:
   BucketStackName:
-    Description: Name of an active CloudFormation Stack that holds the S3 bucket and OAI  for the front end 
+    Description: Name of an active CloudFormation Stack that holds the S3 bucket and OAI  for the front end
     Type: String
     Default: front-end-s3-buckets
 Resources:
   CFDistribution:
     Type: "AWS::CloudFront::Distribution"
-    DependsOn:
-      - CFOriginAccessIdentity
     Properties:
       DistributionConfig:
         Origins:
           - DomainName: !Sub "stonkpix-frontend.s3.us-west-2.amazonaws.com"
             Id: myS3Origin
             S3OriginConfig:
-              OriginAccessIdentity: Fn::ImportValue: !Sub: "origin-access-identity/cloudfront/${BucketStackName}-OriginAccessIdentity"
+              OriginAccessIdentity:
+                Fn::Join:
+                  - ""
+                  - - "origin-access-identity/cloudfront/"
+                    - Fn::ImportValue: !Sub "${BucketStackName}-OriginAccessIdentity"
         Enabled: "true"
         DefaultRootObject: index.html
         DefaultCacheBehavior:
