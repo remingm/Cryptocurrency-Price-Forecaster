@@ -30,7 +30,10 @@ const app = express();
 // Connect to MongoDB
 mongoose.Promise = bluebird;
 
+const uri_test = "mongodb://stonkpix:<password>@stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/?ssl=true&ssl_ca_certs=/usr/src/app/rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false";
+
 console.log("connecting to mongodb....");
+
 mongoose
   .connect(MONGODB_URI, {
     tls: true,
@@ -38,7 +41,7 @@ mongoose
     tlsAllowInvalidCertificates: true,
     sslValidate: false,
     user: DB_USERNAME,
-    pass: escape(DB_PASSWORD)
+    pass: encodeURIComponent(DB_PASSWORD)
     //auth: { user: escape(DB_USERNAME), password: escape(DB_PASSWORD)}  
   })
   .then(() => {
