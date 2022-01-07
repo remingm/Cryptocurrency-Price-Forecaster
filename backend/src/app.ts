@@ -37,8 +37,7 @@ mongoose
     tlsCAFile: `${CA_DIR}/rds-combined-ca-bundle.pem`,
     tlsAllowInvalidCertificates: true,
     sslValidate: false,
-    user: DB_USERNAME,
-    pass: DB_PASSWORD,
+    auth: { user: DB_USERNAME, password: DB_PASSWORD}  
   })
   .then(() => {
     /** ready to use. The `mongoose.connect()` promise resolves to undefined. */
