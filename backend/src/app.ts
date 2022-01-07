@@ -37,7 +37,7 @@ mongoose
     tlsCAFile: `${CA_DIR}/rds-combined-ca-bundle.pem`,
     tlsAllowInvalidCertificates: true,
     sslValidate: false,
-    user: "DB_USERNAME",
+    user: DB_USERNAME,
     pass: escape(DB_PASSWORD)
     //auth: { user: escape(DB_USERNAME), password: escape(DB_PASSWORD)}  
   })
