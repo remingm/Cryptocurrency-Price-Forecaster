@@ -24,7 +24,6 @@ ml-build-image-push-ecr:
   stage: build-image-push-ecr
   only:
     - main
-    - stonkpix.mlInfrastructure
 
 backend-deploy:
   stage: deploy
@@ -49,4 +48,3 @@ ml-backend-deploy:
     - .deploy 
   only:
     - main
-    - stonkpix.mlInfrastructure
