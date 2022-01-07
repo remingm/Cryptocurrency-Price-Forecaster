@@ -33,10 +33,6 @@ mongoose.Promise = bluebird;
 console.log("connecting to mongodb....");
 mongoose
   .connect(MONGODB_URI, {
-    tls: true,
-    tlsCAFile: `${CA_DIR}/rds-combined-ca-bundle.pem`,
-    tlsAllowInvalidCertificates: true,
-    sslValidate: false,
     user: DB_USERNAME,
     pass: DB_PASSWORD,
   })
