@@ -13,7 +13,6 @@ backend-build-image-push-ecr:
     - .build-image-push-ecr 
   only:
     - main
-    - stonkpix.mlInfrastructure
 
 
 ml-build-image-push-ecr:
@@ -35,7 +34,6 @@ backend-deploy:
     - .deploy 
   only:
     - main
-    - stonkpix.mlInfrastructure
 
     
 ml-backend-deploy:
