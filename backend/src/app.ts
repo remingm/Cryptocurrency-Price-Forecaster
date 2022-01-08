@@ -42,8 +42,9 @@ mongoose
     tlsAllowInvalidCertificates: true,
     //useNewUrlParser: true
     sslValidate: false,
-    //dbName: "db_name",    
-    auth: { user: encodeURIComponent(DB_USERNAME), password: escape(DB_PASSWORD)}  
+    //dbName: "db_name",
+    user: DB_USERNAME,
+    pass: encodeURIComponent(DB_PASSWORD)    
   })
   .then(() => {
     /** ready to use. The `mongoose.connect()` promise resolves to undefined. */
@@ -77,7 +78,7 @@ try {
       tlsAllowInvalidCertificates: true,
       //useNewUrlParser: true
       sslValidate: false,
-      auth: { user: encodeURIComponent(DB_USERNAME), password: escape(DB_PASSWORD)}  
+      auth: {username: DB_USERNAME, password: DB_PASSWORD}
     }
   }) ;
   

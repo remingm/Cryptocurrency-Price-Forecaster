@@ -29,7 +29,6 @@
   },
   "dependencies": {
     "@typegoose/typegoose": "^9.2.0",
-    "@types/mongodb": "3.6.5",
     "async": "3.2.0",
     "bcrypt-nodejs": "0.0.3",
     "bluebird": "3.7.2",
