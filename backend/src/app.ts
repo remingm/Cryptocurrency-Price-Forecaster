@@ -39,7 +39,6 @@ mongoose
     //tls: true,
     //tlsCAFile: `${CA_DIR}/rds-combined-ca-bundle.pem`,
     tlsAllowInvalidCertificates: true,
-    useUnifiedTopology: true,
     //useNewUrlParser: true
     //sslValidate: false,
     //user: DB_USERNAME,
