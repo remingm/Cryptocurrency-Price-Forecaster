@@ -39,7 +39,7 @@ mongoose
     //tls: true,
     //tlsCAFile: `${CA_DIR}/rds-combined-ca-bundle.pem`,
     tlsAllowInvalidCertificates: true,
-    useNewUrlParser: true
+    //useNewUrlParser: true
     //sslValidate: false,
     //user: DB_USERNAME,
     //pass: encodeURIComponent(DB_PASSWORD)
