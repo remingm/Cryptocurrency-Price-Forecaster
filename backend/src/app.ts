@@ -32,16 +32,14 @@ mongoose.Promise = bluebird;
 
 console.log("connecting to mongodb....");
 
-const mongo_options = {
-  tls: true,
-  tlsCAFile: `${CA_DIR}/rds-combined-ca-bundle.pem`,
-  tlsAllowInvalidCertificates: true,
-  sslValidate: false,
-  auth: {username: DB_USERNAME, password: DB_PASSWORD}    
-};
-
 mongoose
-  .connect(MONGODB_URI, mongo_options)
+  .connect(MONGODB_URI, {
+    tls: true,
+    tlsCAFile: `${CA_DIR}/rds-combined-ca-bundle.pem`,
+    tlsAllowInvalidCertificates: true,
+    sslValidate: false,
+    auth: {username: DB_USERNAME, password: DB_PASSWORD}    
+  })
   .then(() => {
     /** ready to use. The `mongoose.connect()` promise resolves to undefined. */
     console.log(`succesfully connected to MongoDB at ${MONGODB_URI}`);
@@ -68,7 +66,13 @@ app.use(
     secret: SESSION_SECRET,
     store: new MongoStore({
       mongoUrl: MONGODB_URI,
-      mongoOptions: mongo_options
+      mongoOptions: {
+        tls: true,
+        tlsCAFile: `${CA_DIR}/rds-combined-ca-bundle.pem`,
+        tlsAllowInvalidCertificates: true,
+        sslValidate: false,
+        auth: {username: DB_USERNAME, password: DB_PASSWORD}
+      }
     }),
   })
 );
