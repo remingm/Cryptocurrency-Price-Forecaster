@@ -43,8 +43,8 @@ mongoose
     //useNewUrlParser: true
     sslValidate: false,
     //dbName: "db_name",
-    user: DB_USERNAME,
-    pass: DB_PASSWORD,
+    //user: DB_USERNAME,
+    //pass: DB_PASSWORD,
     auth: {username: DB_USERNAME, password: encodeURIComponent(DB_PASSWORD)}    
   })
   .then(() => {
