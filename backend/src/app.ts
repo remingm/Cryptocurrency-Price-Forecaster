@@ -30,23 +30,18 @@ const app = express();
 // Connect to MongoDB
 mongoose.Promise = bluebird;
 
-const uri_test = "mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false";
-
 console.log("connecting to mongodb....");
 
+const mongo_options = {
+  tls: true,
+  tlsCAFile: `${CA_DIR}/rds-combined-ca-bundle.pem`,
+  tlsAllowInvalidCertificates: true,
+  sslValidate: false,
+  auth: {username: DB_USERNAME, password: DB_PASSWORD}    
+};
 
 mongoose
-  .connect(uri_test, {
-    tls: true,
-    tlsCAFile: `${CA_DIR}/rds-combined-ca-bundle.pem`,
-    tlsAllowInvalidCertificates: true,
-    //useNewUrlParser: true
-    sslValidate: false,
-    //dbName: "db_name",
-    //user: DB_USERNAME,
-    //pass: DB_PASSWORD,
-    auth: {username: DB_USERNAME, password: DB_PASSWORD}    
-  })
+  .connect(MONGODB_URI, mongo_options)
   .then(() => {
     /** ready to use. The `mongoose.connect()` promise resolves to undefined. */
     console.log(`succesfully connected to MongoDB at ${MONGODB_URI}`);
@@ -60,42 +55,23 @@ mongoose
   });
 
 // Express configuration
-
-
-
 app.set("port", process.env.PORT || 3000);
 app.set("views", path.join(__dirname, "../views"));
 app.set("view engine", "pug");
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-try {
-  const mongo_store = new MongoStore({
-    mongoUrl: MONGODB_URI,
-    mongoOptions: {
-      tls: true,
-      tlsCAFile: `${CA_DIR}/rds-combined-ca-bundle.pem`,
-      tlsAllowInvalidCertificates: true,
-      //useNewUrlParser: true
-      sslValidate: false,
-      auth: {username: DB_USERNAME, password: DB_PASSWORD}
-    }
-  }) ;
-  
-  app.use(
-    session({
-      resave: true,
-      saveUninitialized: true,
-      secret: SESSION_SECRET,
-      store: mongo_store,
-    })
-  );
-
-  } catch (error) {
-    console.error(`error is happening in the MongoStore creation ${error}`);
-  }
-
+app.use(
+  session({
+    resave: true,
+    saveUninitialized: true,
+    secret: SESSION_SECRET,
+    store: new MongoStore({
+      mongoUrl: MONGODB_URI,
+      mongoOptions: mongo_options
+    }),
+  })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());
