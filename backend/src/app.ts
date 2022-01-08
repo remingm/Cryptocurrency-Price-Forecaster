@@ -45,7 +45,7 @@ mongoose
     //dbName: "db_name",
     //user: DB_USERNAME,
     //pass: DB_PASSWORD,
-    auth: {username: DB_USERNAME, password: encodeURIComponent(DB_PASSWORD)}    
+    auth: {username: DB_USERNAME, password: DB_PASSWORD}    
   })
   .then(() => {
     /** ready to use. The `mongoose.connect()` promise resolves to undefined. */
