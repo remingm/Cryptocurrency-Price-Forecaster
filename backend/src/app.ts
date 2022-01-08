@@ -44,7 +44,8 @@ mongoose
     sslValidate: false,
     //dbName: "db_name",
     user: DB_USERNAME,
-    pass: encodeURIComponent(DB_PASSWORD)    
+    pass: DB_PASSWORD,
+    auth: {username: DB_USERNAME, password: encodeURIComponent(DB_PASSWORD)}    
   })
   .then(() => {
     /** ready to use. The `mongoose.connect()` promise resolves to undefined. */
