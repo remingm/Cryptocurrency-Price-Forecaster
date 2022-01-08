@@ -30,9 +30,10 @@ const app = express();
 // Connect to MongoDB
 mongoose.Promise = bluebird;
 
-const uri_test = "mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false";
+const uri_test = "mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false";
 
 console.log("connecting to mongodb....");
+
 
 mongoose
   .connect(uri_test, {
@@ -41,10 +42,8 @@ mongoose
     tlsAllowInvalidCertificates: true,
     //useNewUrlParser: true
     sslValidate: false,
-    user: DB_USERNAME,
-    pass: encodeURIComponent(DB_PASSWORD),
-    dbName: "db_name",    
-    //auth: { user: escape(DB_USERNAME), password: escape(DB_PASSWORD)}  
+    //dbName: "db_name",    
+    auth: { user: encodeURIComponent(DB_USERNAME), password: escape(DB_PASSWORD)}  
   })
   .then(() => {
     /** ready to use. The `mongoose.connect()` promise resolves to undefined. */
@@ -59,22 +58,43 @@ mongoose
   });
 
 // Express configuration
+
+
+
 app.set("port", process.env.PORT || 3000);
 app.set("views", path.join(__dirname, "../views"));
 app.set("view engine", "pug");
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(
-  session({
-    resave: true,
-    saveUninitialized: true,
-    secret: SESSION_SECRET,
-    store: new MongoStore({
-      mongoUrl: MONGODB_URI,
-    }),
-  })
-);
+
+try {
+  const mongo_store = new MongoStore({
+    mongoUrl: MONGODB_URI,
+    mongoOptions: {
+      tls: true,
+      tlsCAFile: `${CA_DIR}/rds-combined-ca-bundle.pem`,
+      tlsAllowInvalidCertificates: true,
+      //useNewUrlParser: true
+      sslValidate: false,
+      auth: { user: encodeURIComponent(DB_USERNAME), password: escape(DB_PASSWORD)}  
+    }
+  }) ;
+  
+  app.use(
+    session({
+      resave: true,
+      saveUninitialized: true,
+      secret: SESSION_SECRET,
+      store: mongo_store,
+    })
+  );
+
+  } catch (error) {
+    console.error(`error is happening in the MongoStore creation ${error}`);
+  }
+
+
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
