@@ -26,6 +26,8 @@ ml-build-image-push-ecr:
 
 backend-deploy:
   stage: deploy
+  needs:
+    - backend-build-image-push-ecr
   extends:
     - .backend-variables
     - .int-environment
@@ -67,3 +69,14 @@ deploy-frontend:
     - aws --version
   script:
     - aws s3 sync ./frontend/dist/ $AWS_S3_URL --delete
+
+ml-backend-deploy:
+  stage: deploy
+  needs:
+    - ml-build-image-push-ecr
+  extends:
+    - .ml-backend-variables
+    - .int-environment
+    - .deploy
+  only:
+    - main

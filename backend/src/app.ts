@@ -31,12 +31,14 @@ const app = express();
 mongoose.Promise = bluebird;
 
 console.log("connecting to mongodb....");
+
 mongoose
   .connect(MONGODB_URI, {
     tls: true,
     tlsCAFile: `${CA_DIR}/rds-combined-ca-bundle.pem`,
-    user: DB_USERNAME,
-    pass: DB_PASSWORD,
+    tlsAllowInvalidCertificates: true,
+    sslValidate: false,
+    auth: {username: DB_USERNAME, password: DB_PASSWORD}    
   })
   .then(() => {
     /** ready to use. The `mongoose.connect()` promise resolves to undefined. */
@@ -64,9 +66,17 @@ app.use(
     secret: SESSION_SECRET,
     store: new MongoStore({
       mongoUrl: MONGODB_URI,
+      mongoOptions: {
+        tls: true,
+        tlsCAFile: `${CA_DIR}/rds-combined-ca-bundle.pem`,
+        tlsAllowInvalidCertificates: true,
+        sslValidate: false,
+        auth: {username: DB_USERNAME, password: DB_PASSWORD}
+      }
     }),
   })
 );
+
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
@@ -150,6 +160,10 @@ coinRouter.get("/", coinController.getCoinsPeriodList);
 coinRouter.get("/:coin/:period", coinController.getCoinData);
 
 baseRouter.use("/coins", coinRouter);
+
+baseRouter.get("/health", (req, res) => {
+  res.status(200).send("Ok");
+});
 
 app.use("/api/v1", baseRouter);
 
