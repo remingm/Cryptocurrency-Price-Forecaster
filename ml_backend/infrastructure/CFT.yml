@@ -22,7 +22,7 @@ Parameters:
     Description: Maximum number of instances that can be launched in your ECS cluster.
   ImageUrl:
     Type: String
-    Default: '525599889582.dkr.ecr.us-west-2.amazonaws.com/stonk-pix-backend:latest'
+    Default: '525599889582.dkr.ecr.us-west-2.amazonaws.com/stonk-pix-ml-backend:latest'
     Description: Link to the container image in ECR being used by the ECS task definition.
   Environment:
     Type: String
@@ -30,10 +30,6 @@ Parameters:
     AllowedValues:
       - int
       - prod
-  SessionSecret:
-    Type: String      
-    Description: session signing secret
-    NoEcho: true
   CaDir: 
     Type: String
     Description: path to dir containing ssl CA
@@ -79,21 +75,21 @@ Parameters:
 Mappings:
   static:
     all:
-      appName: stonk-pix-backend
+      appName: stonk-pix-ml-backend
   AWSRegionToAMI:
     us-west-2:
       AMIID: ami-078c97cf1cefd1b38
   environment:
     int:
-      containerName: stonk-pix-backend-int
+      containerName: stonk-pix-ml-backend-int
       dbPasswordSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-int-fEsDRg:db-password::'
       dbUsernameSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-int-fEsDRg:db-username::'
-      mongoDbUri: 'mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false'  
+      mongoDbUri: 'mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?tls=true&tlsCAFile=/app/rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false'  
     prod:
-      containerName: stonk-pix-backend-prod
+      containerName: stonk-pix-ml-backend-prod
       dbPasswordSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-prod-S3CpMA:db-password::'
       dbUsernameSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-prod-S3CpMA:db-username::'
-      mongoDbUri: 'mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false'        
+      mongoDbUri: 'mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?tls=true&tlsCAFile=/app/rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false'
 Resources:   
   ECSCluster:
     Type: 'AWS::ECS::Cluster'
@@ -134,14 +130,6 @@ Resources:
       FromPort: 22
       ToPort: 22
       CidrIp: 0.0.0.0/0
-  EcsSecurityGroupALBports:
-    Type: 'AWS::EC2::SecurityGroupIngress'
-    Properties:
-      GroupId: !Ref EcsSecurityGroup
-      IpProtocol: tcp
-      FromPort: 31000
-      ToPort: 61000
-      SourceSecurityGroupId: !Ref EcsSecurityGroup
   CloudwatchLogsGroup:
     Type: 'AWS::Logs::LogGroup'
     Properties:
@@ -194,68 +182,11 @@ Resources:
           - Name: NODE_ENV
             Value: !Ref Environment
           - Name: PORT
-            Value: '3000'
-          - Name: SESSION_SECRET
-            Value: !Ref SessionSecret  
+            Value: '3000' 
           - Name: 'CA_DIR' 
             Value: !Ref CaDir
           - Name: MONGODB_URI
             Value: !FindInMap [environment, !Ref Environment, mongoDbUri]
-  ECSALB:     
-    Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
-    Properties:
-      Name: !Join 
-        - '-'
-        - - 'Fn::FindInMap':
-              - static
-              - all
-              - appName
-          - alb
-          - !Ref Environment
-      Scheme: internet-facing
-      LoadBalancerAttributes:
-        - Key: idle_timeout.timeout_seconds
-          Value: '30'
-      Subnets: !Ref SubnetId
-      SecurityGroups:
-        - !Ref EcsSecurityGroup
-  ALBListener:
-    Type: 'AWS::ElasticLoadBalancingV2::Listener'
-    DependsOn: ECSServiceRole
-    Properties:
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref ECSTG
-      LoadBalancerArn: !Ref ECSALB
-      Port: '3000'
-      Protocol: HTTP
-  ECSALBListenerRule:
-    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
-    DependsOn: ALBListener
-    Properties:
-      Actions:
-        - Type: forward
-          TargetGroupArn: !Ref ECSTG
-      Conditions:
-        - Field: path-pattern
-          Values:
-            - /
-      ListenerArn: !Ref ALBListener
-      Priority: 1
-  ECSTG:
-    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
-    DependsOn: ECSALB
-    Properties:
-      HealthCheckIntervalSeconds: 60
-      HealthCheckPath: /api/v1/health
-      HealthCheckProtocol: HTTP
-      HealthCheckTimeoutSeconds: 5
-      HealthyThresholdCount: 2
-      Name: ECSTG
-      Port: 3000
-      Protocol: HTTP
-      UnhealthyThresholdCount: 2
-      VpcId: !Ref VpcId
   ECSAutoScalingGroup:
     Type: 'AWS::AutoScaling::AutoScalingGroup'
     Properties:
@@ -311,7 +242,6 @@ Resources:
 
   service:
     Type: 'AWS::ECS::Service'
-    DependsOn: ALBListener
     Properties:
       Cluster: !Ref ECSCluster
       ServiceName: !Join 
@@ -320,11 +250,6 @@ Resources:
           - !FindInMap [static, all, appName]
           - !Ref Environment
       DesiredCount: 1
-      LoadBalancers:
-        - ContainerName: !FindInMap [environment, !Ref Environment, containerName ]
-          ContainerPort: '3000'
-          TargetGroupArn: !Ref ECSTG
-      Role: !Ref ECSServiceRole
       TaskDefinition: !Ref taskdefinition
   ECSServiceRole:
     Type: 'AWS::IAM::Role'
@@ -384,32 +309,6 @@ Resources:
         StepAdjustments:
           - MetricIntervalLowerBound: 0
             ScalingAdjustment: 200
-  ALB500sAlarmScaleUp:
-    Type: 'AWS::CloudWatch::Alarm'
-    Properties:
-      AlarmName: !Join 
-        - '-'
-        - - 'Fn::FindInMap':
-              - static
-              - all
-              - appName
-          - ALB500sAlarmScaleUp
-          - !Ref Environment
-      EvaluationPeriods: '1'
-      Statistic: Average
-      Threshold: '10'
-      AlarmDescription: Alarm if our ALB generates too many HTTP 500s.
-      Period: '60'
-      AlarmActions:
-        - !Ref ServiceScalingPolicy
-      Namespace: AWS/ApplicationELB
-      Dimensions:
-        - Name: LoadBalancer
-          Value: !GetAtt 
-            - ECSALB
-            - LoadBalancerFullName
-      ComparisonOperator: GreaterThanThreshold
-      MetricName: HTTPCode_ELB_5XX_Count
   EC2Role:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -475,7 +374,7 @@ Resources:
   TaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join ['-', [stonkpix-task-execution-role, !Ref Environment]]
+      RoleName: !Join ['-', [stonkpix-ml-task-execution-role, !Ref Environment]]
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
@@ -499,94 +398,10 @@ Resources:
                   - 'logs:PutLogEvents'                  
                 Resource: '*'
 
-# Security group for APIGW VPC Link
-  APIGWVPClinkSG:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      VpcId: !Ref 'VpcId'
-      GroupName: !Join 
-        - '-'
-        - - 'Fn::FindInMap':
-              - static
-              - all
-              - appName
-          - vpclink-SG
-          - !Ref Environment      
-      GroupDescription: APIGW vpclink security group
-      SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 80
-        ToPort: 80
-        CidrIp: 0.0.0.0/0
-
-  PrivateAPIGWvpcLink:  
-    Type: AWS::ApiGatewayV2::VpcLink
-    Properties: 
-      Name: !Join 
-        - '-'
-        - - 'Fn::FindInMap':
-              - static
-              - all
-              - appName
-          - apigw-vpclink
-          - !Ref Environment 
-      SecurityGroupIds: 
-        - !Ref APIGWVPClinkSG
-      SubnetIds: !Ref SubnetId
-
-# -------------------------------------------------------------------------
-# Deploy API GW HTTP API route and integration to private ALB via VPC Link
-# -------------------------------------------------------------------------
-
-  HttpApiALB:
-    Type: AWS::ApiGatewayV2::Api
-    Properties:
-      Name: alb-HTTP-api
-      Description: HTTP API ALB
-      ProtocolType: HTTP
-
-  APIRoute:
-    Type: AWS::ApiGatewayV2::Route
-    Properties:
-      ApiId: !Ref HttpApiALB
-      RouteKey: 'ANY /'
-      Target: !Join
-        - /
-        - - integrations
-          - !Ref APIIntegration
-
-  APIIntegration:
-    Type: AWS::ApiGatewayV2::Integration
-    Properties:
-      ApiId: !Ref HttpApiALB
-      Description: Private ALB Integration
-      IntegrationType: HTTP_PROXY
-      IntegrationMethod: ANY
-      ConnectionType: VPC_LINK
-      ConnectionId: 
-        !Ref PrivateAPIGWvpcLink
-      IntegrationUri: 
-        !Ref ALBListener
-      PayloadFormatVersion: '1.0'
-
-  APIStage:
-    Type: AWS::ApiGatewayV2::Stage
-    Properties:
-      StageName: !Ref Environment
-      AutoDeploy: true
-      ApiId: !Ref HttpApiALB                                
-
 Outputs:
   ecsservice:
     Value: !Ref service
   ecscluster:
     Value: !Ref ECSCluster
-  ECSALB:
-    Description: Your ALB DNS URL
-    Value: !Join 
-      - ''
-      - - !GetAtt 
-          - ECSALB
-          - DNSName
   taskdef:
     Value: !Ref taskdefinition
