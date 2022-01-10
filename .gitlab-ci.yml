@@ -14,6 +14,7 @@ backend-build-image-push-ecr:
     - .build-image-push-ecr
   only:
     - main
+    - stonkpix.FixAPIGateway
 
 ml-build-image-push-ecr:
   extends:
@@ -23,26 +24,7 @@ ml-build-image-push-ecr:
   stage: build
   only:
     - main
-
-backend-deploy:
-  stage: deploy
-  needs:
-    - backend-build-image-push-ecr
-  extends:
-    - .backend-variables
-    - .int-environment
-    - .deploy
-  only:
-    - main
-
-frontend-deploy:
-  stage: deploy
-  extends:
-    - .frontend-variables
-    - .int-environment
-    - .deploy
-  only:
-    - main
+    - stonkpix.FixAPIGateway    
 
 build-frontend:
   image: node:latest
@@ -56,7 +38,28 @@ build-frontend:
   artifacts:
     paths:
       - frontend/dist
-    expire_in: 1 hour
+    expire_in: 1 hour    
+
+backend-deploy:
+  stage: deploy
+  needs:
+    - backend-build-image-push-ecr
+  extends:
+    - .backend-variables
+    - .int-environment
+    - .deploy
+  only:
+    - main
+    - stonkpix.FixAPIGateway
+
+frontend-deploy:
+  stage: deploy
+  extends:
+    - .frontend-variables
+    - .int-environment
+    - .deploy
+  only:
+    - main
 
 deploy-frontend:
   image:
@@ -80,3 +83,4 @@ ml-backend-deploy:
     - .deploy
   only:
     - main
+    - stonkpix.FixAPIGateway
