@@ -10,7 +10,7 @@ Parameters:
     Description: Select a VPC that allows instances to access the Internet.
   SubnetId:
     Type: 'List<AWS::EC2::Subnet::Id>'
-    Default: 'subnet-0934ebc3071868c68,subnet-065e2aa8be4049e4c'
+    Default: 'subnet-086337a2cbfcecde8,subnet-0b4a08b18f794286b'
     Description: Select at least two subnets in your selected VPC.
   DesiredCapacity:
     Type: Number
