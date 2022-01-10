@@ -1,37 +1,32 @@
+import CoinDisplayComponent from "./Coin/CoinDisplayComponent";
+const today = new Date();
+const dd = String(today.getDate()).padStart(2, "0");
+const mm = String(today.getMonth() + 1).padStart(2, "0"); // January is 0!
+const yyyy = today.getFullYear();
+
+const date = mm + "/" + dd + "/" + yyyy;
+
 const Home = () => {
   return (
-    <div
-      className="relative pt-16 pb-32 flex content-center items-center justify-center"
-      style={{
-        minHeight: "75vh",
-      }}
-    >
-      <div
-        className="absolute top-0 w-full h-full bg-center bg-cover"
-        style={{
-          backgroundImage: "url('/src/assets/stonks.png')",
-        }}
-      >
-        <span
-          id="blackOverlay"
-          className="w-full h-full absolute opacity-60 bg-black"
-        ></span>
+    <div>
+      <div className="max-w-2xl mx-auto text-center pt-24 px-4  lg:px-8">
+        <h2 className="text-3xl font-extrabold  sm:text-4xl">
+          <span className="block">AI-Powered Crypto Forecasts</span>
+        </h2>
+        <p className="mt-4 text-lg leading-6 mb-10">
+          Live BTC price predictions for {date}
+        </p>
+        {/* action button hidden below */}
+        {false && (
+          <a
+            href="#"
+            className="mt-6 mb-10 w-full inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 sm:w-auto"
+          >
+            Sign up for free
+          </a>
+        )}
       </div>
-
-      <div className="container relative mx-auto">
-        <div className="items-center flex flex-wrap">
-          <div className="w-full lg:w-6/12 px-4 ml-auto mr-auto text-center">
-            <div className="pr-12">
-              <h1 className="text-white font-semibold text-5xl">
-                AI Driven Crypto Picks
-              </h1>
-              <p className="mt-4 text-lg text-gray-300">
-                Updated on the hour, every hour.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <CoinDisplayComponent coinId="BTC"></CoinDisplayComponent>
     </div>
   );
 };
