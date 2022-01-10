@@ -20,6 +20,7 @@ variables:
   variables: 
     APP_NAME: stonk-pix-frontend
     DOCKER_DIRECTORY_PATH: frontend
+    CFT_PARAMETERS: ParameterKey=BucketStackName,ParameterValue=stonk-pix-s3-int
 
 .int-environment:
   variables:
