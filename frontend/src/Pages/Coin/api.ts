@@ -1,13 +1,14 @@
-import { Coin, sampleCoin } from "./model";
+import { sampleCoin } from "./model";
+import { ICoin } from "../../models/CoinModel";
 
 const CoinApi = {
-  getCoins: (): Coin[] => {
-    const coins: Coin[] = [sampleCoin];
+  getCoins: (): ICoin[] => {
+    const coins: ICoin[] = [sampleCoin];
     return coins;
   },
 
   // get details for a single coin - ex "BTC"
-  getCoin: (coinId: string): Promise<Coin> => {
+  getCoin: (coinId: string): Promise<ICoin> => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve(sampleCoin);

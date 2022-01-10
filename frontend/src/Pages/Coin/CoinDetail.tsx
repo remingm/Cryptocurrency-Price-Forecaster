@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 // import { Bell, Price } from "./model";
-import { ICoin } from "../../../../ts_lib/models/CoinModel";
+import { ICoin } from "../../models/CoinModel";
 import api from "./api";
 import Graph from "./Graph";
 
