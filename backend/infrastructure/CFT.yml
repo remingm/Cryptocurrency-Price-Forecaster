@@ -1,28 +1,28 @@
 AWSTemplateFormatVersion: 2010-09-09
 Parameters:
   KeyName:
-    Type: 'AWS::EC2::KeyPair::KeyName'
+    Type: "AWS::EC2::KeyPair::KeyName"
     Default: ssh-insilabs-keypair
     Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
   VpcId:
-    Type: 'AWS::EC2::VPC::Id'
+    Type: "AWS::EC2::VPC::Id"
     Default: vpc-0b103bd6a68a03861
     Description: Select a VPC that allows instances to access the Internet.
   SubnetId:
-    Type: 'List<AWS::EC2::Subnet::Id>'
-    Default: 'subnet-08fb6669826370ea7,subnet-0aa8d96f347294f31'
+    Type: "List<AWS::EC2::Subnet::Id>"
+    Default: "subnet-08fb6669826370ea7,subnet-0aa8d96f347294f31"
     Description: Select at least two subnets in your selected VPC.
   DesiredCapacity:
     Type: Number
-    Default: '1'
+    Default: "1"
     Description: Number of instances to launch in your ECS cluster.
   MaxSize:
     Type: Number
-    Default: '1'
+    Default: "1"
     Description: Maximum number of instances that can be launched in your ECS cluster.
   ImageUrl:
     Type: String
-    Default: '525599889582.dkr.ecr.us-west-2.amazonaws.com/stonk-pix-backend:latest'
+    Default: "525599889582.dkr.ecr.us-west-2.amazonaws.com/stonk-pix-backend:latest"
     Description: Link to the container image in ECR being used by the ECS task definition.
   Environment:
     Type: String
@@ -31,13 +31,13 @@ Parameters:
       - int
       - prod
   SessionSecret:
-    Type: String      
+    Type: String
     Description: session signing secret
     NoEcho: true
-  CaDir: 
+  CaDir:
     Type: String
     Description: path to dir containing ssl CA
-    Default: /usr/src/app  
+    Default: /usr/src/app
   InstanceType:
     Description: EC2 instance type
     Type: String
@@ -86,40 +86,40 @@ Mappings:
   environment:
     int:
       containerName: stonk-pix-backend-int
-      dbPasswordSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-int-fEsDRg:db-password::'
-      dbUsernameSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-int-fEsDRg:db-username::'
-      mongoDbUri: 'mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false'  
+      dbPasswordSecretArn: "arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-int-fEsDRg:db-password::"
+      dbUsernameSecretArn: "arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-int-fEsDRg:db-username::"
+      mongoDbUri: "mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
     prod:
       containerName: stonk-pix-backend-prod
-      dbPasswordSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-prod-S3CpMA:db-password::'
-      dbUsernameSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-prod-S3CpMA:db-username::'
-      mongoDbUri: 'mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false'        
-Resources:   
+      dbPasswordSecretArn: "arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-prod-S3CpMA:db-password::"
+      dbUsernameSecretArn: "arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-prod-S3CpMA:db-username::"
+      mongoDbUri: "mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
+Resources:
   ECSCluster:
-    Type: 'AWS::ECS::Cluster'
+    Type: "AWS::ECS::Cluster"
     Properties:
-      ClusterName: !Join 
-        - '-'
-        - - 'Fn::FindInMap':
+      ClusterName: !Join
+        - "-"
+        - - "Fn::FindInMap":
               - static
               - all
               - appName
           - !Ref Environment
   EcsSecurityGroup:
-    Type: 'AWS::EC2::SecurityGroup'
+    Type: "AWS::EC2::SecurityGroup"
     Properties:
       GroupDescription: ECS Security Group
-      GroupName: !Join 
-        - '-'
+      GroupName: !Join
+        - "-"
         - - ecs-sg
-          - 'Fn::FindInMap':
+          - "Fn::FindInMap":
               - static
               - all
               - appName
           - !Ref Environment
       VpcId: !Ref VpcId
   EcsSecurityGroupHTTPinbound:
-    Type: 'AWS::EC2::SecurityGroupIngress'
+    Type: "AWS::EC2::SecurityGroupIngress"
     Properties:
       GroupId: !Ref EcsSecurityGroup
       IpProtocol: tcp
@@ -127,7 +127,7 @@ Resources:
       ToPort: 3000
       CidrIp: 0.0.0.0/0
   EcsSecurityGroupSSHinbound:
-    Type: 'AWS::EC2::SecurityGroupIngress'
+    Type: "AWS::EC2::SecurityGroupIngress"
     Properties:
       GroupId: !Ref EcsSecurityGroup
       IpProtocol: tcp
@@ -135,7 +135,7 @@ Resources:
       ToPort: 22
       CidrIp: 0.0.0.0/0
   EcsSecurityGroupALBports:
-    Type: 'AWS::EC2::SecurityGroupIngress'
+    Type: "AWS::EC2::SecurityGroupIngress"
     Properties:
       GroupId: !Ref EcsSecurityGroup
       IpProtocol: tcp
@@ -143,70 +143,72 @@ Resources:
       ToPort: 61000
       SourceSecurityGroupId: !Ref EcsSecurityGroup
   CloudwatchLogsGroup:
-    Type: 'AWS::Logs::LogGroup'
+    Type: "AWS::Logs::LogGroup"
     Properties:
-      LogGroupName: !Join 
-        - '-'
+      LogGroupName: !Join
+        - "-"
         - - ECSLogGroup
-          - 'Fn::FindInMap':
+          - "Fn::FindInMap":
               - static
               - all
               - appName
           - !Ref Environment
       RetentionInDays: 14
   taskdefinition:
-    Type: 'AWS::ECS::TaskDefinition'
+    Type: "AWS::ECS::TaskDefinition"
     Properties:
-      Family: !Join 
-        - '-'
-        - - 'Fn::FindInMap':
+      Family: !Join
+        - "-"
+        - - "Fn::FindInMap":
               - static
               - all
               - appName
           - !Ref Environment
-      ExecutionRoleArn: !Ref TaskExecutionRole    
+      ExecutionRoleArn: !Ref TaskExecutionRole
       ContainerDefinitions:
-      - Name: !FindInMap [ environment, !Ref Environment, containerName ]
-        Cpu: '10'
-        Essential: 'true'
-        Image: !Ref ImageUrl
-        Memory: '300'
-        LogConfiguration:
-          LogDriver: awslogs
-          Options:
-            awslogs-group: !Ref CloudwatchLogsGroup
-            awslogs-region: !Ref 'AWS::Region'
-            awslogs-stream-prefix: !Join 
-              - '-'
-              - - 'Fn::FindInMap':
-                    - static
-                    - all
-                    - appName
-                - !Ref Environment
-        PortMappings:
-          - ContainerPort: 3000
-        Secrets:
+        - Name: !FindInMap [environment, !Ref Environment, containerName]
+          Cpu: "10"
+          Essential: "true"
+          Image: !Ref ImageUrl
+          Memory: "300"
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref CloudwatchLogsGroup
+              awslogs-region: !Ref "AWS::Region"
+              awslogs-stream-prefix: !Join
+                - "-"
+                - - "Fn::FindInMap":
+                      - static
+                      - all
+                      - appName
+                  - !Ref Environment
+          PortMappings:
+            - ContainerPort: 3000
+          Secrets:
             - Name: DB_PASSWORD
-              ValueFrom: !FindInMap [environment, !Ref Environment, dbPasswordSecretArn]
+              ValueFrom:
+                !FindInMap [environment, !Ref Environment, dbPasswordSecretArn]
             - Name: DB_USERNAME
-              ValueFrom: !FindInMap [environment, !Ref Environment, dbUsernameSecretArn]
-        Environment:
-          - Name: NODE_ENV
-            Value: !Ref Environment
-          - Name: PORT
-            Value: '3000'
-          - Name: SESSION_SECRET
-            Value: !Ref SessionSecret  
-          - Name: 'CA_DIR' 
-            Value: !Ref CaDir
-          - Name: MONGODB_URI
-            Value: !FindInMap [environment, !Ref Environment, mongoDbUri]
-  ECSALB:     
-    Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
+              ValueFrom:
+                !FindInMap [environment, !Ref Environment, dbUsernameSecretArn]
+          Environment:
+            - Name: NODE_ENV
+              Value: !Ref Environment
+            - Name: PORT
+              Value: "3000"
+            - Name: SESSION_SECRET
+              Value: !Ref SessionSecret
+            - Name: "CA_DIR"
+              Value: !Ref CaDir
+            - Name: MONGODB_URI
+              Value: !FindInMap [environment, !Ref Environment, mongoDbUri]
+  ECSALB:
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
     Properties:
-      Name: !Join 
-        - '-'
-        - - 'Fn::FindInMap':
+      Name: !Join
+        - "-"
+        - - "Fn::FindInMap":
               - static
               - all
               - appName
@@ -215,22 +217,22 @@ Resources:
       Scheme: internet-facing
       LoadBalancerAttributes:
         - Key: idle_timeout.timeout_seconds
-          Value: '30'
+          Value: "30"
       Subnets: !Ref SubnetId
       SecurityGroups:
         - !Ref EcsSecurityGroup
   ALBListener:
-    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
     DependsOn: ECSServiceRole
     Properties:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref ECSTG
       LoadBalancerArn: !Ref ECSALB
-      Port: '3000'
+      Port: "3000"
       Protocol: HTTP
   ECSALBListenerRule:
-    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+    Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
     DependsOn: ALBListener
     Properties:
       Actions:
@@ -243,7 +245,7 @@ Resources:
       ListenerArn: !Ref ALBListener
       Priority: 1
   ECSTG:
-    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
     DependsOn: ECSALB
     Properties:
       HealthCheckIntervalSeconds: 60
@@ -257,11 +259,11 @@ Resources:
       UnhealthyThresholdCount: 2
       VpcId: !Ref VpcId
   ECSAutoScalingGroup:
-    Type: 'AWS::AutoScaling::AutoScalingGroup'
+    Type: "AWS::AutoScaling::AutoScalingGroup"
     Properties:
       VPCZoneIdentifier: !Ref SubnetId
       LaunchConfigurationName: !Ref ContainerInstances
-      MinSize: '1'
+      MinSize: "1"
       MaxSize: !Ref MaxSize
       DesiredCapacity: !Ref DesiredCapacity
     CreationPolicy:
@@ -269,30 +271,30 @@ Resources:
         Timeout: PT15M
     UpdatePolicy:
       AutoScalingReplacingUpdate:
-        WillReplace: 'true'
+        WillReplace: "true"
   ContainerInstances:
-    Type: 'AWS::AutoScaling::LaunchConfiguration'
+    Type: "AWS::AutoScaling::LaunchConfiguration"
     Properties:
-      LaunchConfigurationName: !Join 
-        - '-'
-        - - 'Fn::FindInMap':
+      LaunchConfigurationName: !Join
+        - "-"
+        - - "Fn::FindInMap":
               - static
               - all
               - appName
           - launch-configuration
           - !Ref Environment
-      ImageId: !FindInMap 
+      ImageId: !FindInMap
         - AWSRegionToAMI
-        - !Ref 'AWS::Region'
+        - !Ref "AWS::Region"
         - AMIID
       SecurityGroups:
         - !Ref EcsSecurityGroup
       InstanceType: !Ref InstanceType
       IamInstanceProfile: !Ref EC2InstanceProfile
       KeyName: !Ref KeyName
-      UserData: !Base64 
-        'Fn::Join':
-          - ''
+      UserData: !Base64
+        "Fn::Join":
+          - ""
           - - |
               #!/bin/bash -xe
             - echo ECS_CLUSTER=
@@ -301,33 +303,34 @@ Resources:
                >> /etc/ecs/ecs.config
             - |
               yum install -y aws-cfn-bootstrap
-            - '/opt/aws/bin/cfn-signal -e $? '
-            - '         --stack '
-            - !Ref 'AWS::StackName'
-            - '         --resource ECSAutoScalingGroup '
-            - '         --region '
-            - !Ref 'AWS::Region'
+            - "/opt/aws/bin/cfn-signal -e $? "
+            - "         --stack "
+            - !Ref "AWS::StackName"
+            - "         --resource ECSAutoScalingGroup "
+            - "         --region "
+            - !Ref "AWS::Region"
             - |+
 
   service:
-    Type: 'AWS::ECS::Service'
+    Type: "AWS::ECS::Service"
     DependsOn: ALBListener
     Properties:
       Cluster: !Ref ECSCluster
-      ServiceName: !Join 
-        - '-'
+      ServiceName: !Join
+        - "-"
         - - ecs-service
           - !FindInMap [static, all, appName]
           - !Ref Environment
       DesiredCount: 1
       LoadBalancers:
-        - ContainerName: !FindInMap [environment, !Ref Environment, containerName ]
-          ContainerPort: '3000'
+        - ContainerName:
+            !FindInMap [environment, !Ref Environment, containerName]
+          ContainerPort: "3000"
           TargetGroupArn: !Ref ECSTG
       Role: !Ref ECSServiceRole
       TaskDefinition: !Ref taskdefinition
   ECSServiceRole:
-    Type: 'AWS::IAM::Role'
+    Type: "AWS::IAM::Role"
     Properties:
       AssumeRolePolicyDocument:
         Statement:
@@ -336,7 +339,7 @@ Resources:
               Service:
                 - ecs.amazonaws.com
             Action:
-              - 'sts:AssumeRole'
+              - "sts:AssumeRole"
       Path: /
       Policies:
         - PolicyName: ecs-service
@@ -344,35 +347,35 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - 'elasticloadbalancing:DeregisterInstancesFromLoadBalancer'
-                  - 'elasticloadbalancing:DeregisterTargets'
-                  - 'elasticloadbalancing:Describe*'
-                  - 'elasticloadbalancing:RegisterInstancesWithLoadBalancer'
-                  - 'elasticloadbalancing:RegisterTargets'
-                  - 'ec2:Describe*'
-                  - 'ec2:AuthorizeSecurityGroupIngress'
-                Resource: '*'
+                  - "elasticloadbalancing:DeregisterInstancesFromLoadBalancer"
+                  - "elasticloadbalancing:DeregisterTargets"
+                  - "elasticloadbalancing:Describe*"
+                  - "elasticloadbalancing:RegisterInstancesWithLoadBalancer"
+                  - "elasticloadbalancing:RegisterTargets"
+                  - "ec2:Describe*"
+                  - "ec2:AuthorizeSecurityGroupIngress"
+                Resource: "*"
   ServiceScalingTarget:
-    Type: 'AWS::ApplicationAutoScaling::ScalableTarget'
+    Type: "AWS::ApplicationAutoScaling::ScalableTarget"
     DependsOn: service
     Properties:
       MaxCapacity: 2
       MinCapacity: 1
-      ResourceId: !Join 
-        - ''
+      ResourceId: !Join
+        - ""
         - - service/
           - !Ref ECSCluster
           - /
-          - !GetAtt 
+          - !GetAtt
             - service
             - Name
-      RoleARN: !GetAtt 
+      RoleARN: !GetAtt
         - AutoscalingRole
         - Arn
-      ScalableDimension: 'ecs:service:DesiredCount'
+      ScalableDimension: "ecs:service:DesiredCount"
       ServiceNamespace: ecs
   ServiceScalingPolicy:
-    Type: 'AWS::ApplicationAutoScaling::ScalingPolicy'
+    Type: "AWS::ApplicationAutoScaling::ScalingPolicy"
     Properties:
       PolicyName: AStepPolicy
       PolicyType: StepScaling
@@ -385,33 +388,33 @@ Resources:
           - MetricIntervalLowerBound: 0
             ScalingAdjustment: 200
   ALB500sAlarmScaleUp:
-    Type: 'AWS::CloudWatch::Alarm'
+    Type: "AWS::CloudWatch::Alarm"
     Properties:
-      AlarmName: !Join 
-        - '-'
-        - - 'Fn::FindInMap':
+      AlarmName: !Join
+        - "-"
+        - - "Fn::FindInMap":
               - static
               - all
               - appName
           - ALB500sAlarmScaleUp
           - !Ref Environment
-      EvaluationPeriods: '1'
+      EvaluationPeriods: "1"
       Statistic: Average
-      Threshold: '10'
+      Threshold: "10"
       AlarmDescription: Alarm if our ALB generates too many HTTP 500s.
-      Period: '60'
+      Period: "60"
       AlarmActions:
         - !Ref ServiceScalingPolicy
       Namespace: AWS/ApplicationELB
       Dimensions:
         - Name: LoadBalancer
-          Value: !GetAtt 
+          Value: !GetAtt
             - ECSALB
             - LoadBalancerFullName
       ComparisonOperator: GreaterThanThreshold
       MetricName: HTTPCode_ELB_5XX_Count
   EC2Role:
-    Type: 'AWS::IAM::Role'
+    Type: "AWS::IAM::Role"
     Properties:
       AssumeRolePolicyDocument:
         Statement:
@@ -420,7 +423,7 @@ Resources:
               Service:
                 - ec2.amazonaws.com
             Action:
-              - 'sts:AssumeRole'
+              - "sts:AssumeRole"
       Path: /
       Policies:
         - PolicyName: ecs-service
@@ -428,22 +431,22 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - 'ecs:CreateCluster'
-                  - 'ecs:DeregisterContainerInstance'
-                  - 'ecs:DiscoverPollEndpoint'
-                  - 'ecs:Poll'
-                  - 'ecs:RegisterContainerInstance'
-                  - 'ecs:StartTelemetrySession'
-                  - 'ecs:Submit*'
-                  - 'logs:CreateLogStream'
-                  - 'logs:PutLogEvents'
-                  - 'ecr:GetAuthorizationToken'
-                  - 'ecr:BatchCheckLayerAvailability'
-                  - 'ecr:BatchGetImage'
-                  - 'ecr:GetDownloadUrlForLayer'
-                Resource: '*'
+                  - "ecs:CreateCluster"
+                  - "ecs:DeregisterContainerInstance"
+                  - "ecs:DiscoverPollEndpoint"
+                  - "ecs:Poll"
+                  - "ecs:RegisterContainerInstance"
+                  - "ecs:StartTelemetrySession"
+                  - "ecs:Submit*"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                  - "ecr:GetAuthorizationToken"
+                  - "ecr:BatchCheckLayerAvailability"
+                  - "ecr:BatchGetImage"
+                  - "ecr:GetDownloadUrlForLayer"
+                Resource: "*"
   AutoscalingRole:
-    Type: 'AWS::IAM::Role'
+    Type: "AWS::IAM::Role"
     Properties:
       AssumeRolePolicyDocument:
         Statement:
@@ -452,7 +455,7 @@ Resources:
               Service:
                 - application-autoscaling.amazonaws.com
             Action:
-              - 'sts:AssumeRole'
+              - "sts:AssumeRole"
       Path: /
       Policies:
         - PolicyName: service-autoscaling
@@ -460,14 +463,14 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - 'application-autoscaling:*'
-                  - 'cloudwatch:DescribeAlarms'
-                  - 'cloudwatch:PutMetricAlarm'
-                  - 'ecs:DescribeServices'
-                  - 'ecs:UpdateService'
-                Resource: '*'
+                  - "application-autoscaling:*"
+                  - "cloudwatch:DescribeAlarms"
+                  - "cloudwatch:PutMetricAlarm"
+                  - "ecs:DescribeServices"
+                  - "ecs:UpdateService"
+                Resource: "*"
   EC2InstanceProfile:
-    Type: 'AWS::IAM::InstanceProfile'
+    Type: "AWS::IAM::InstanceProfile"
     Properties:
       Path: /
       Roles:
@@ -475,13 +478,13 @@ Resources:
   TaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join ['-', [stonkpix-task-execution-role, !Ref Environment]]
+      RoleName: !Join ["-", [stonkpix-task-execution-role, !Ref Environment]]
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
             Principal:
               Service: ecs-tasks.amazonaws.com
-            Action: 'sts:AssumeRole'
+            Action: "sts:AssumeRole"
       Path: /
       Policies:
         - PolicyName: ecs-service
@@ -489,54 +492,54 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - 'secretsmanager:GetSecretValue'
-                  - 'kms:Decrypt'
-                  - 'ecr:GetAuthorizationToken'
-                  - 'ecr:BatchCheckLayerAvailability'
-                  - 'ecr:BatchGetImage'
-                  - 'ecr:GetDownloadUrlForLayer'
-                  - 'logs:CreateLogStream'
-                  - 'logs:PutLogEvents'                  
-                Resource: '*'
+                  - "secretsmanager:GetSecretValue"
+                  - "kms:Decrypt"
+                  - "ecr:GetAuthorizationToken"
+                  - "ecr:BatchCheckLayerAvailability"
+                  - "ecr:BatchGetImage"
+                  - "ecr:GetDownloadUrlForLayer"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
 
-# Security group for APIGW VPC Link
+  # Security group for APIGW VPC Link
   APIGWVPClinkSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !Ref 'VpcId'
-      GroupName: !Join 
-        - '-'
-        - - 'Fn::FindInMap':
+      VpcId: !Ref "VpcId"
+      GroupName: !Join
+        - "-"
+        - - "Fn::FindInMap":
               - static
               - all
               - appName
           - vpclink-SG
-          - !Ref Environment      
+          - !Ref Environment
       GroupDescription: APIGW vpclink security group
       SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 80
-        ToPort: 80
-        CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
 
-  PrivateAPIGWvpcLink:  
+  PrivateAPIGWvpcLink:
     Type: AWS::ApiGatewayV2::VpcLink
-    Properties: 
-      Name: !Join 
-        - '-'
-        - - 'Fn::FindInMap':
+    Properties:
+      Name: !Join
+        - "-"
+        - - "Fn::FindInMap":
               - static
               - all
               - appName
           - apigw-vpclink
-          - !Ref Environment 
-      SecurityGroupIds: 
+          - !Ref Environment
+      SecurityGroupIds:
         - !Ref APIGWVPClinkSG
       SubnetIds: !Ref SubnetId
 
-# -------------------------------------------------------------------------
-# Deploy API GW HTTP API route and integration to private ALB via VPC Link
-# -------------------------------------------------------------------------
+  # -------------------------------------------------------------------------
+  # Deploy API GW HTTP API route and integration to private ALB via VPC Link
+  # -------------------------------------------------------------------------
 
   HttpApiALB:
     Type: AWS::ApiGatewayV2::Api
@@ -549,7 +552,7 @@ Resources:
     Type: AWS::ApiGatewayV2::Route
     Properties:
       ApiId: !Ref HttpApiALB
-      RouteKey: 'ANY /'
+      RouteKey: "ANY /"
       Target: !Join
         - /
         - - integrations
@@ -563,18 +566,16 @@ Resources:
       IntegrationType: HTTP_PROXY
       IntegrationMethod: ANY
       ConnectionType: VPC_LINK
-      ConnectionId: 
-        !Ref PrivateAPIGWvpcLink
-      IntegrationUri: 
-        !Ref ALBListener
-      PayloadFormatVersion: '1.0'
+      ConnectionId: !Ref PrivateAPIGWvpcLink
+      IntegrationUri: !Ref ALBListener
+      PayloadFormatVersion: "1.0"
 
   APIStage:
     Type: AWS::ApiGatewayV2::Stage
     Properties:
       StageName: !Ref Environment
       AutoDeploy: true
-      ApiId: !Ref HttpApiALB                                
+      ApiId: !Ref HttpApiALB
 
 Outputs:
   ecsservice:
@@ -583,9 +584,9 @@ Outputs:
     Value: !Ref ECSCluster
   ECSALB:
     Description: Your ALB DNS URL
-    Value: !Join 
-      - ''
-      - - !GetAtt 
+    Value: !Join
+      - ""
+      - - !GetAtt
           - ECSALB
           - DNSName
   taskdef:

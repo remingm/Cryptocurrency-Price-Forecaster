@@ -2,13 +2,14 @@
 
 this is the repo for the revolutionary stonk pixer. utilizing ai, blockchain, cloud, and synergy
 
-###### Running locally #######
+###### Running locally
 
 # download ssl certs for documentdb
+
 `wget -P ~/.ssh https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem`
 
-
 # set environment variables - add to backend/src/.env or set in linux
+
 NODE_ENV=int
 PORT=3000
 SESSION_SECRET=asasdasd
@@ -24,7 +25,7 @@ to run w/ automatic build refresh:
 
 then visit localhost:3000/
 
-###### docker usage ######
+###### docker usage
 
 (note: currently broken as of 10/24 due to mongo not being installed in the docker image)
 

@@ -1,13 +1,12 @@
-import Coin from "../../../../ts_lib/models/CoinModel";
+import { ICoin } from "../../models/CoinModel";
 
 export interface Price {
   timestamp: string;
   close: number;
 }
 
-export const sampleCoin: typeof Coin = {
-  name: "Bitcoin",
-  ticker: "BTC",
+export const sampleCoin: ICoin = {
+  symbol: "Bitcoin",
   period: "1hr",
   past: [
     {
@@ -37,4 +36,5 @@ export const sampleCoin: typeof Coin = {
       close: 448.7,
     },
   ],
+  MAPE: 123,
 };
