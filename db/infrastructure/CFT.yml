@@ -4,10 +4,10 @@ Parameters:
   VPC:
     Type: String
     Description: The VPC to create the cluster
-    Default: vpc-0b103bd6a68a03861
+    Default: vpc-0e5f3811fa70fd118
   SubnetId:
     Type: 'List<AWS::EC2::Subnet::Id>'
-    Default: 'subnet-086337a2cbfcecde8,subnet-0b4a08b18f794286b'
+    Default: 'subnet-058a9e8378e89c15a,subnet-03a33882e03b07546'
     Description: Select at least two subnets in your selected VPC.
   Environment:
     Type: String
@@ -103,7 +103,7 @@ Resources:
     Type: AWS::DocDB::DBInstance
     Properties:
       AutoMinorVersionUpgrade: true
-      AvailabilityZone: "us-west-2a"
+      AvailabilityZone: "us-west-2b"
       DBClusterIdentifier: !Ref DBCluster
       DBInstanceClass: "db.t3.medium"
       DBInstanceIdentifier: !Join 
