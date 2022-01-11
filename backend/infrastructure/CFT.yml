@@ -569,12 +569,12 @@ Resources:
         !Ref ALBListener
       PayloadFormatVersion: '1.0'
 
-  APIStage:
-    Type: AWS::ApiGatewayV2::Stage
-    Properties:
-      StageName: !Ref Environment
-      AutoDeploy: true
-      ApiId: !Ref HttpApiALB                                
+  # APIStage:
+  #   Type: AWS::ApiGatewayV2::Stage
+  #   Properties:
+  #     StageName: !Ref Environment
+  #     AutoDeploy: true
+  #     ApiId: !Ref HttpApiALB                                
 
 Outputs:
   ecsservice:

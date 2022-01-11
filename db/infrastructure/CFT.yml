@@ -43,7 +43,7 @@ Resources:
       VpcId: !Ref VPC
       SecurityGroupIngress: 
         - 
-          CidrIp: "172.31.0.0/16"
+          CidrIp: "10.0.0.0/16"
           IpProtocol: "-1"
           FromPort: 27017
           IpProtocol: "tcp"
