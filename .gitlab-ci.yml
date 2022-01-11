@@ -14,7 +14,6 @@ backend-build-image-push-ecr:
     - .build-image-push-ecr
   only:
     - main
-    - stonkpix.FixAPIGateway
 
 ml-build-image-push-ecr:
   extends:
@@ -24,7 +23,6 @@ ml-build-image-push-ecr:
   stage: build
   only:
     - main
-    - stonkpix.FixAPIGateway    
 
 build-frontend:
   image: node:latest
@@ -50,7 +48,6 @@ backend-deploy:
     - .deploy
   only:
     - main
-    - stonkpix.FixAPIGateway
 
 frontend-deploy:
   stage: deploy
@@ -83,4 +80,3 @@ ml-backend-deploy:
     - .deploy
   only:
     - main
-    - stonkpix.FixAPIGateway
