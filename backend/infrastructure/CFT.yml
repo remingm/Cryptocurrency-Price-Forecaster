@@ -545,7 +545,7 @@ Resources:
       Description: HTTP API ALB
       ProtocolType: HTTP
 
-  APIRoute:
+  APIRoute1:
     Type: AWS::ApiGatewayV2::Route
     Properties:
       ApiId: !Ref HttpApiALB
@@ -554,6 +554,16 @@ Resources:
         - /
         - - integrations
           - !Ref APIIntegration
+
+  APIRoute2:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApiALB
+      RouteKey: 'ANY /api/v1/coins'
+      Target: !Join
+        - /
+        - - integrations
+          - !Ref APIIntegration          
 
   APIIntegration:
     Type: AWS::ApiGatewayV2::Integration
@@ -569,12 +579,12 @@ Resources:
         !Ref ALBListener
       PayloadFormatVersion: '1.0'
 
-  # APIStage:
-  #   Type: AWS::ApiGatewayV2::Stage
-  #   Properties:
-  #     StageName: !Ref Environment
-  #     AutoDeploy: true
-  #     ApiId: !Ref HttpApiALB                                
+  APIStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      StageName: $default
+      AutoDeploy: true
+      ApiId: !Ref HttpApiALB                                
 
 Outputs:
   ecsservice:
