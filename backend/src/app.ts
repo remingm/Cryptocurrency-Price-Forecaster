@@ -11,8 +11,13 @@ import mongoose from "mongoose";
 import passport from "passport";
 import bluebird from "bluebird";
 import * as mongoDB from "mongodb";
-import { MONGODB_URI, SESSION_SECRET, DB_PASSWORD, DB_USERNAME, CA_DIR } from "./config/config";
-
+import {
+  MONGODB_URI,
+  SESSION_SECRET,
+  DB_PASSWORD,
+  DB_USERNAME,
+  CA_DIR,
+} from "./config/config";
 
 // Controllers (route handlers)
 import * as homeController from "./controllers/home";
@@ -38,7 +43,7 @@ mongoose
     tlsCAFile: `${CA_DIR}/rds-combined-ca-bundle.pem`,
     tlsAllowInvalidCertificates: true,
     sslValidate: false,
-    auth: {username: DB_USERNAME, password: DB_PASSWORD}    
+    auth: { username: DB_USERNAME, password: DB_PASSWORD },
   })
   .then(() => {
     /** ready to use. The `mongoose.connect()` promise resolves to undefined. */
@@ -71,8 +76,8 @@ app.use(
         tlsCAFile: `${CA_DIR}/rds-combined-ca-bundle.pem`,
         tlsAllowInvalidCertificates: true,
         sslValidate: false,
-        auth: {username: DB_USERNAME, password: DB_PASSWORD}
-      }
+        auth: { username: DB_USERNAME, password: DB_PASSWORD },
+      },
     }),
   })
 );

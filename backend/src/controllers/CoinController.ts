@@ -12,17 +12,18 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
  * @param res
  * @returns
  */
-export async function getCoinsPeriodList(req: Request, res: Response): Promise<any> {
+export async function getCoinsPeriodList(
+  req: Request,
+  res: Response
+): Promise<any> {
   console.log("getting all coins");
 
-  const coinsList = await Coin.find({}, { symbol : 1, period: 1 });
+  const coinsList = await Coin.find({}, { symbol: 1, period: 1 });
 
   console.log("retrieved:");
   console.log(coinsList);
 
-  return res
-    .status(OK)
-    .json(coinsList);
+  return res.status(OK).json(coinsList);
 }
 
 /**
@@ -40,15 +41,17 @@ export async function getCoinData(req: Request, res: Response): Promise<any> {
 
   const myCoin = await Coin.findOne({ symbol: coin_name, period: coin_period });
 
-  if (myCoin == null){
-    return res.status(BAD_REQUEST).json({ "Error": `coin/period combo { symbol: ${coin_name}, period: ${coin_period} } does not exist in db.`});
+  if (myCoin == null) {
+    return res
+      .status(BAD_REQUEST)
+      .json({
+        Error: `coin/period combo { symbol: ${coin_name}, period: ${coin_period} } does not exist in db.`,
+      });
   }
 
   console.log("retrieved:");
   console.log(myCoin.symbol);
   console.log(myCoin.period);
 
-  return res
-    .status(OK)
-    .json(myCoin);
+  return res.status(OK).json(myCoin);
 }

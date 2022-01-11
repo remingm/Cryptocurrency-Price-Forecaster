@@ -14,7 +14,6 @@ const Graph = (props: graphProps) => {
   addBridgePoint(past, prediction);
 
   const data = {
-    labels: [props],
     datasets: [
       // past prices
       {
