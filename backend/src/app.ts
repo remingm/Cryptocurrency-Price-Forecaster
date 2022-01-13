@@ -39,10 +39,6 @@ console.log("connecting to mongodb....");
 
 mongoose
   .connect(MONGODB_URI, {
-    tls: true,
-    tlsCAFile: `${CA_DIR}/rds-combined-ca-bundle.pem`,
-    tlsAllowInvalidCertificates: true,
-    sslValidate: false,
     auth: { username: DB_USERNAME, password: DB_PASSWORD },
   })
   .then(() => {
@@ -72,10 +68,6 @@ app.use(
     store: new MongoStore({
       mongoUrl: MONGODB_URI,
       mongoOptions: {
-        tls: true,
-        tlsCAFile: `${CA_DIR}/rds-combined-ca-bundle.pem`,
-        tlsAllowInvalidCertificates: true,
-        sslValidate: false,
         auth: { username: DB_USERNAME, password: DB_PASSWORD },
       },
     }),
