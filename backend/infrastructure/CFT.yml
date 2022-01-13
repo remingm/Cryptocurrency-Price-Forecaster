@@ -88,13 +88,13 @@ Mappings:
       containerName: stonk-pix-backend-int
       dbPasswordSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-int-fEsDRg:db-password::'
       dbUsernameSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-int-fEsDRg:db-username::'
-      mongoDbUri: 'mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false'  
+      mongoDbUri: 'mongodb+srv://cluster0.p8o7k.mongodb.net/db_name?retryWrites=true&w=majority'  
     prod:
       containerName: stonk-pix-backend-prod
       dbPasswordSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-prod-S3CpMA:db-password::'
       dbUsernameSecretArn: 'arn:aws:secretsmanager:us-west-2:525599889582:secret:stonk-pix-db-credential-prod-S3CpMA:db-username::'
-      mongoDbUri: 'mongodb://stonk-pix-db-cluster-int.cluster-cznmbr8ow7kn.us-west-2.docdb.amazonaws.com:27017/db_name?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false'        
-Resources:   
+      mongoDbUri: 'mongodb+srv://cluster0.p8o7k.mongodb.net/db_name?retryWrites=true&w=majority'        
+Resources:
   ECSCluster:
     Type: 'AWS::ECS::Cluster'
     Properties:
