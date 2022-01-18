@@ -28,7 +28,7 @@ const CoinDisplayComponent = (props: CoinDisplayComponentProps) => {
   }, []);
 
   return (
-    <div className="relative  h-screen sm:px-10 max-w-6xl flex-col flex justify-between mx-auto">
+    <div className="relative  h-screen sm:px-10 max-w-6xl flex-col flex justify-between mx-auto my-24">
       {!isLoaded && <div>Loading...</div>}
       {error && <div>{error}</div>}
 
@@ -37,7 +37,7 @@ const CoinDisplayComponent = (props: CoinDisplayComponentProps) => {
         {coin === undefined && <div>Loading...</div>}
         {coin !== undefined && (
           <Graph
-            pastPrices={coin.past}
+            pastPrices={coin.past.slice(coin.prediction.length * -2)} // trim to make graph 2/3 past 1/3 prediction
             predictionPrices={coin.prediction}
           ></Graph>
         )}

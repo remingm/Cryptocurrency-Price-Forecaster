@@ -27,12 +27,12 @@ const coinList = [
 const Home = () => {
   return (
     <div>
-      <div className="max-w-2xl mx-auto text-center pt-24 px-4  lg:px-8">
+      <div className="max-w-2xl mx-auto text-center pt-24 px-4 lg:px-8">
         <h2 className="text-3xl font-extrabold  sm:text-4xl">
           <span className="block">AI-Powered Crypto Forecasts</span>
         </h2>
         <p className="mt-4 text-lg leading-6 mb-10">
-          Live BTC price predictions for {date}
+          Live Cryptocurrency price predictions for {date}
         </p>
         {/* action button hidden below */}
         {false && (
