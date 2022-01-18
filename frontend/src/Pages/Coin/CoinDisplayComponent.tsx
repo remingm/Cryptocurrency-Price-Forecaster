@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 // import { Bell, Price } from "./model";
 import { ICoin } from "../../models/CoinModel";
-import api from "./api";
+import { CoinApi, MockCoinApi } from "./api";
 import Graph from "./Graph";
 
 interface CoinDisplayComponentProps {
@@ -14,8 +14,9 @@ const CoinDisplayComponent = (props: CoinDisplayComponentProps) => {
   const [coin, setCoin] = useState<ICoin>();
 
   useEffect(() => {
-    api.getCoin(coinId).then(
+    CoinApi.getCoin(coinId).then(
       (someCoin) => {
+        console.log(someCoin);
         setCoin(someCoin);
         setLoaded(true);
       },
@@ -31,6 +32,7 @@ const CoinDisplayComponent = (props: CoinDisplayComponentProps) => {
       {!isLoaded && <div>Loading...</div>}
       {error && <div>{error}</div>}
 
+      {coinId}
       <div className=" flex-grow">
         {coin === undefined && <div>Loading...</div>}
         {coin !== undefined && (
