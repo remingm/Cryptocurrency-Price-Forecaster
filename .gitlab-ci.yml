@@ -55,8 +55,6 @@ frontend-deploy:
     - .frontend-variables
     - .int-environment
     - .deploy
-  needs:
-    - build-frontend   
   only:
     - main
 
@@ -67,8 +65,6 @@ deploy-frontend:
   stage: post-deploy
   only:
     - main
-  needs:
-    - frontend-deploy    
   before_script:
     - aws --version
   script:
