@@ -32,6 +32,16 @@ import * as passportConfig from "./config/passport";
 // Create Express server
 const app = express();
 
+//insecure CORS allow-all to allow localhost:3000 to talk to localhost:3001, for example
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
+
 // Connect to MongoDB
 mongoose.Promise = bluebird;
 

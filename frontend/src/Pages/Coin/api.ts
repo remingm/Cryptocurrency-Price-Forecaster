@@ -1,7 +1,8 @@
 import { sampleCoin } from "./model";
 import { ICoin } from "../../models/CoinModel";
+import axios from "axios";
 
-const CoinApi = {
+export const MockCoinApi = {
   getCoins: (): ICoin[] => {
     const coins: ICoin[] = [sampleCoin];
     return coins;
@@ -17,4 +18,22 @@ const CoinApi = {
   },
 };
 
-export default CoinApi;
+const LOCAL_URL = "http://localhost:3001";
+const PROD_URL = "https://tgwi6k62ug.execute-api.us-west-2.amazonaws.com";
+
+//TODO: switch to env vars to switch URL
+const URL = PROD_URL;
+
+export const CoinApi = {
+  getCoin: (coinId: string): Promise<ICoin> =>
+    axios
+      .get<ICoin>(URL + `/api/v1/coins/${coinId}`)
+      .then(function (response) {
+        console.log(response);
+        return response.data;
+      })
+      .catch(function (response) {
+        console.log(response.status);
+        throw new Error(response.status);
+      }),
+};

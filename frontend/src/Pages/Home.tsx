@@ -1,3 +1,4 @@
+import Coin from "../models/CoinModel";
 import CoinDisplayComponent from "./Coin/CoinDisplayComponent";
 const today = new Date();
 const dd = String(today.getDate()).padStart(2, "0");
@@ -5,6 +6,23 @@ const mm = String(today.getMonth() + 1).padStart(2, "0"); // January is 0!
 const yyyy = today.getFullYear();
 
 const date = mm + "/" + dd + "/" + yyyy;
+
+// TODO: get from /api/v1/coins/ endpoint
+const coinList = [
+  "BTC-USD/1d",
+  "DOT-USD/1d",
+  "XMR-USD/1d",
+  "ADA-USD/1d",
+  "SOL-USD/1d",
+  "ALGO-USD/1d",
+  "ETH-USD/1d",
+  "DOGE-USD/1d",
+  "XRP-USD/1d",
+  "MANA-USD/1d",
+  "BCH-USD/1d",
+  "SHIB-USD/1d",
+  "LTC-USD/1d",
+];
 
 const Home = () => {
   return (
@@ -26,7 +44,16 @@ const Home = () => {
           </a>
         )}
       </div>
-      <CoinDisplayComponent coinId="BTC"></CoinDisplayComponent>
+
+      <ul>
+        {coinList.map(function (coin, index) {
+          return (
+            <li key={index}>
+              <CoinDisplayComponent coinId={coin}></CoinDisplayComponent>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 };
