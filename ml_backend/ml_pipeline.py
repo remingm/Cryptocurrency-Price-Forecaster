@@ -34,7 +34,9 @@ def ml_pipeline(coin, validate=False):
 
     print("Success", coin.symbol, coin.period)
     print("Training model for", coin)
-    prediction, backtest_mape = train_pipeline(coin, validate_model=validate)
+    prediction, backtest_mape = train_pipeline(
+        coin, validate_model=validate, plot=False
+    )
     coin.backtest_mape = backtest_mape
     coin.prediction = prediction
     coin.last_compute = datetime.datetime.utcnow()
@@ -77,4 +79,4 @@ def main_ml_loop(coins, SLEEP_TIME, validate):
 if __name__ == "__main__":
     coins = make_coins_set(COINS, TIMEPERIODS, target_var="kalman")
     while True:
-        coins = main_ml_loop(coins, SLEEP_TIME, validate=False)
+        coins = main_ml_loop(coins, SLEEP_TIME, validate=True)
