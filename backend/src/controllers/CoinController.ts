@@ -42,11 +42,9 @@ export async function getCoinData(req: Request, res: Response): Promise<any> {
   const myCoin = await Coin.findOne({ symbol: coin_name, period: coin_period });
 
   if (myCoin == null) {
-    return res
-      .status(BAD_REQUEST)
-      .json({
-        Error: `coin/period combo { symbol: ${coin_name}, period: ${coin_period} } does not exist in db.`,
-      });
+    return res.status(BAD_REQUEST).json({
+      Error: `coin/period combo { symbol: ${coin_name}, period: ${coin_period} } does not exist in db.`,
+    });
   }
 
   console.log("retrieved:");

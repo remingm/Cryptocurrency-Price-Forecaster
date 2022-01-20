@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 // import { Bell, Price } from "./model";
 import { ICoin } from "../../models/CoinModel";
-import api from "./api";
+import { CoinApi, MockCoinApi } from "./api";
 import Graph from "./Graph";
 
 interface CoinDisplayComponentProps {
@@ -14,8 +14,9 @@ const CoinDisplayComponent = (props: CoinDisplayComponentProps) => {
   const [coin, setCoin] = useState<ICoin>();
 
   useEffect(() => {
-    api.getCoin(coinId).then(
+    CoinApi.getCoin(coinId).then(
       (someCoin) => {
+        console.log(someCoin);
         setCoin(someCoin);
         setLoaded(true);
       },
@@ -27,15 +28,16 @@ const CoinDisplayComponent = (props: CoinDisplayComponentProps) => {
   }, []);
 
   return (
-    <div className="relative  h-screen sm:px-10 max-w-6xl flex-col flex justify-between mx-auto">
+    <div className="relative  h-screen sm:px-10 max-w-6xl flex-col flex justify-between mx-auto my-24">
       {!isLoaded && <div>Loading...</div>}
       {error && <div>{error}</div>}
 
+      {coinId}
       <div className=" flex-grow">
         {coin === undefined && <div>Loading...</div>}
         {coin !== undefined && (
           <Graph
-            pastPrices={coin.past}
+            pastPrices={coin.past.slice(coin.prediction.length * -2)} // trim to make graph 2/3 past 1/3 prediction
             predictionPrices={coin.prediction}
           ></Graph>
         )}

@@ -563,7 +563,17 @@ Resources:
       Target: !Join
         - /
         - - integrations
-          - !Ref APIIntegration          
+          - !Ref APIIntegration     
+
+  APIRoute2:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApiALB
+      RouteKey: 'ANY /api/v1/coins/{coin}/{period}'
+      Target: !Join
+        - /
+        - - integrations
+          - !Ref APIIntegration  
 
   APIIntegration:
     Type: AWS::ApiGatewayV2::Integration

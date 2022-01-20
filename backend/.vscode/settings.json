@@ -4,7 +4,6 @@
     "source.fixAll.eslint": true
   },
   "eslint.validate": ["javascript", "typescript"],
-  "editor.formatOnSave": true,
   "[javascript]": {
     "editor.formatOnSave": false
   },
@@ -22,5 +21,6 @@
   },
   "typescript.referencesCodeLens.enabled": true,
   "appService.zipIgnorePattern": [".vscode{,/**}"],
-  "appService.deploySubpath": ""
+  "appService.deploySubpath": "",
+  "editor.formatOnSave": true
 }
