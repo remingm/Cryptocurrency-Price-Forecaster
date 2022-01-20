@@ -5,6 +5,9 @@ import Home from "./Pages/Home";
 import About from "./Pages/About";
 import CoinDetail from "./Pages/Coin/CoinDetail";
 
+import ReactGA from "react-ga";
+ReactGA.initialize("G-H7RBX1HXVK");
+ReactGA.pageview(window.location.pathname + window.location.search);
 function App() {
   return (
     <div>
