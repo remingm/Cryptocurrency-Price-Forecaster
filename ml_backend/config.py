@@ -12,7 +12,6 @@ COINS = [
     "XMR/USD",
     "XRP/USD",
     "BCH/USD",
-    "SHIB/USD",
 ]
 
 TIMEPERIODS = ["1d"]
