@@ -16,7 +16,6 @@ const CoinDisplayComponent = (props: CoinDisplayComponentProps) => {
   useEffect(() => {
     CoinApi.getCoin(coinId).then(
       (someCoin) => {
-        console.log(someCoin);
         setCoin(someCoin);
         setLoaded(true);
       },
