@@ -25,7 +25,7 @@ const coinList = [
   "LTC-USD/1d",
 ];
 
-const SHOW_FEEDBACK_FORM = true; // feature flag until works
+const SHOW_FEEDBACK_FORM = false; // feature flag until works
 
 const Home = () => {
   return (
