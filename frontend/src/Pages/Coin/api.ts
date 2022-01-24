@@ -29,11 +29,9 @@ export const CoinApi = {
     axios
       .get<ICoin>(URL + `/api/v1/coins/${coinId}`)
       .then(function (response) {
-        console.log(response);
         return response.data;
       })
       .catch(function (response) {
-        console.log(response.status);
         throw new Error(response.status);
       }),
 };
