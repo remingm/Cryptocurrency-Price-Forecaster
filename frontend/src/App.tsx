@@ -4,7 +4,7 @@ import { Route, BrowserRouter as Routes } from "react-router-dom";
 import Home from "./Pages/Home";
 import About from "./Pages/About";
 import CoinDetail from "./Pages/Coin/CoinDetail";
-import usePageTracking from "./util/UsePageTracking";
+import usePageTracking from "./util/usePageTracking";
 
 function App() {
   usePageTracking();
