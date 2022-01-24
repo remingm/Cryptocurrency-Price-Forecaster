@@ -9,9 +9,7 @@ def split_data(scaled_timeseries, forecast_len):
 
 
 def train_model(target_series, covariates, val=None, val_covar=None, forecast_len=0.1):
-    # todo read 10% from config.py
     if val != None:
-        # pred_len = min(len(target_series)+len(val) // 10, 72)
         pred_len = len(val)
     else:
         pred_len = min(len(target_series) // forecast_len, 72)
