@@ -16,11 +16,18 @@ Parameters:
     AllowedValues:
       - int
       - prod
+  CertificateArn:
+    Type: String
+    Default: "arn:aws:acm:us-east-1:525599889582:certificate/daf4b95d-b11c-4a75-a943-4bb213d7ca1a"
 Resources:
   CFDistribution:
     Type: "AWS::CloudFront::Distribution"
     Properties:
       DistributionConfig:
+        Aliases: ["stonkpix.net"]
+        ViewerCertificate:
+          SslSupportMethod: sni-only
+          AcmCertificateArn: !Ref CertificateArn
         Origins:
           - DomainName:
               Fn::Join:

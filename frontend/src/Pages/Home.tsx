@@ -20,7 +20,7 @@ const coinList = [
   "XRP-USD/1d",
   "MANA-USD/1d",
   "BCH-USD/1d",
-  "SHIB-USD/1d",
+//   "SHIB-USD/1d",
   "LTC-USD/1d",
 ];
 
