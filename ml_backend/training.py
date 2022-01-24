@@ -1,15 +1,21 @@
-from darts.metrics import mape, smape, mase
+from darts.metrics import mape, ope
 from darts.models import TCNModel
 
 
-def split_data(scaled_timeseries):
-    split = int(len(scaled_timeseries) * 0.1)  # todo split param.
+def split_data(scaled_timeseries, forecast_len):
+    split = int(len(scaled_timeseries) * forecast_len)
     train, val = scaled_timeseries[:-split], scaled_timeseries[-split:]
     return train, val
 
 
-def train_model(target_series, covariates, val=None, val_covar=None):
-    pred_len = min(len(target_series) // 10, 72)
+def train_model(target_series, covariates, val=None, val_covar=None, forecast_len=0.1):
+    # todo read 10% from config.py
+    if val != None:
+        # pred_len = min(len(target_series)+len(val) // 10, 72)
+        pred_len = len(val)
+    else:
+        pred_len = min(len(target_series) // forecast_len, 72)
+
     model = TCNModel(
         input_chunk_length=pred_len + 1,
         output_chunk_length=pred_len,
@@ -38,7 +44,15 @@ def eval_model(
     coin,
     plot=False,
 ):
-    pred_len = len(val_covar)
+
+    """
+    Models relying on past covariates require the last input_chunk_length of the past_covariates
+    points to be known at prediction time. For horizon values n > output_chunk_length, these models
+    require at least the next n - output_chunk_length future values to be known as well.
+    https://unit8co.github.io/darts/generated_api/darts.models.forecasting.tcn_model.html#darts.models.forecasting.tcn_model.TCNModel.predict
+
+    """
+    # pred_len = len(val_covar)
     pred_len = model.output_chunk_length
     prediction = model.predict(
         n=pred_len, series=train_target, past_covariates=train_covar
@@ -49,9 +63,13 @@ def eval_model(
     )
     coin.prediction = prediction
 
+    coin.mape = mape(actual_series=val_target, pred_series=prediction)
+    coin.ope = ope(val_target, prediction)
+
     if plot:
         coin.scaled_covars["close"].plot(new_plot=True, label="Past")
         prediction[coin.target_var].plot(label="Forecast")
+    return coin.mape
 
 
 def backtest_model(model, train, scaled, target_var, target_var_idx):
@@ -106,19 +124,22 @@ def align_prediction(scaled, prediction, align_with="close", idx=-1):
     return prediction
 
 
-def train_pipeline(coin, validate_model=False, plot=False):
+def train_pipeline(coin, validate_model=False, plot=False, forecast_len=0.1):
 
     if validate_model:
         # split covariates
-        train_target, val_target = split_data(scaled_timeseries=coin.scaled_target)
-        # train_covar, val_covar = split_data(scaled_timeseries=coin.covariates)
-        train_covar, val_covar = split_data(scaled_timeseries=coin.scaled_covars)
+        train_target, val_target = split_data(
+            scaled_timeseries=coin.scaled_target, forecast_len=forecast_len
+        )
+        train_covar, val_covar = split_data(
+            scaled_timeseries=coin.scaled_covars, forecast_len=forecast_len
+        )
 
         # Holdout val set and score
-        # try:
-        model = train_model(train_target, train_covar, val_target, val_covar)
-        # backtest_mape = backtest_model(model, train, scaled, target_var, target_var_idx)
-        eval_model(
+        model = train_model(
+            train_target, train_covar, val_target, val_covar, forecast_len=forecast_len
+        )
+        mape = eval_model(
             model,
             train_target,
             val_target,
@@ -127,17 +148,16 @@ def train_pipeline(coin, validate_model=False, plot=False):
             coin.scaled_target,
             coin.target_var,
             coin,
-            plot=True,
+            plot=False,
         )
-        # except:
-        #     pass
-        backtest_mape = -1
 
     else:
-        backtest_mape = -1
+        mape = -1
 
     # Retrain on all data and predict
-    model = train_model(coin.scaled_target, coin.scaled_covars)
+    model = train_model(
+        coin.scaled_target, coin.scaled_covars, forecast_len=forecast_len
+    )
     prediction = predict(model, coin, plot=plot)
 
-    return prediction, backtest_mape
+    return prediction, mape

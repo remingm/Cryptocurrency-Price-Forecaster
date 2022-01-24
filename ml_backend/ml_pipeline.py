@@ -5,10 +5,10 @@ from generate_factors import generate_factors, scale_data
 from training import train_pipeline
 from output import output_pipeline
 from coin import Coin
-from config import COINS, TIMEPERIODS, SLEEP_TIME, DB_NAME
+from config import COINS, TIMEPERIODS, SLEEP_TIME, DB_NAME, VALIDATE, FORECAST_LEN
 
 
-def ml_pipeline(coin, validate=False):
+def ml_pipeline(coin, validate=False, forecast_len=0.1):
     print("Getting data for", coin)
     df = get_ohlcv_series(exchange, coin.original_symbol, coin.period)
 
@@ -35,7 +35,7 @@ def ml_pipeline(coin, validate=False):
     print("Success", coin.symbol, coin.period)
     print("Training model for", coin)
     prediction, backtest_mape = train_pipeline(
-        coin, validate_model=validate, plot=False
+        coin, validate_model=validate, plot=False, forecast_len=forecast_len
     )
     coin.backtest_mape = backtest_mape
     coin.prediction = prediction
@@ -56,13 +56,13 @@ def make_coins_set(COINS, TIMEPERIODS, target_var="close"):
     return coins
 
 
-def main_ml_loop(coins, SLEEP_TIME, validate):
+def main_ml_loop(coins, SLEEP_TIME, validate, forecast_len):
     processed = set()
     while len(coins) > 0:
         coin = coins.pop()
         if coin.check_compute_time():
             print(f"Timedelta expired, computing {coin}")
-            coin = ml_pipeline(coin, validate=validate)
+            coin = ml_pipeline(coin, validate=validate, forecast_len=forecast_len)
         else:
             print(f"Timedelta has not yet expired for {coin}")
 
@@ -79,4 +79,6 @@ def main_ml_loop(coins, SLEEP_TIME, validate):
 if __name__ == "__main__":
     coins = make_coins_set(COINS, TIMEPERIODS, target_var="kalman")
     while True:
-        coins = main_ml_loop(coins, SLEEP_TIME, validate=True)
+        coins = main_ml_loop(
+            coins, SLEEP_TIME, validate=VALIDATE, forecast_len=FORECAST_LEN
+        )
