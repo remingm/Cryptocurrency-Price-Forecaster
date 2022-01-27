@@ -8,7 +8,7 @@ from coin import Coin
 from config import COINS, TIMEPERIODS, SLEEP_TIME, DB_NAME, VALIDATE, FORECAST_LEN
 
 
-def ml_pipeline(coin, validate=False, forecast_len=0.1):
+def ml_pipeline(coin, validate=False, forecast_len=0.1, plot=False):
     print("Getting data for", coin)
     df = get_ohlcv_series(exchange, coin.original_symbol, coin.period)
 

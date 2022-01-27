@@ -26,7 +26,6 @@ def format_timestamp_index(past_close, df, prediction):
         timestamp = past_close.index[-1] + timestamp_len_ms * i
         future_timestamps.append(timestamp)
     prediction.set_index(pd.Series(future_timestamps), inplace=True)
-    prediction = prediction.round(2)
     return past_close, prediction
 
 
@@ -47,7 +46,8 @@ def format_json(symbol, period, past_close, prediction, backtest_mape, target_va
     reformatted_past = []
     reformatted_pred = []
     past_dict = json.loads(past_close.to_json())
-    pred_dict = json.loads(prediction.to_json())[target_var]
+    # Changed from coin.target_var to '0' after kalman smoothing prediction.
+    pred_dict = json.loads(prediction.to_json())["0"]
     for key in past_dict.keys():
         reformatted_past.append({"timestamp": int(key), "close": past_dict[key]})
     for key in pred_dict.keys():

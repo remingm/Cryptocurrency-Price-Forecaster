@@ -1,5 +1,5 @@
-from darts.metrics import mape, ope
-from darts.models import TCNModel
+from darts.metrics import mape, ope, mse
+from darts.models import TCNModel, KalmanFilter
 
 
 def split_data(scaled_timeseries, forecast_len):
@@ -12,7 +12,10 @@ def train_model(target_series, covariates, val=None, val_covar=None, forecast_le
     if val != None:
         pred_len = len(val)
     else:
-        pred_len = min(len(target_series) // forecast_len, 72)
+        forecast_len = forecast_len * 100
+        # pred_len = min(len(target_series) // forecast_len, 72)
+        pred_len = len(target_series) // forecast_len
+        pred_len = int(pred_len)
 
     model = TCNModel(
         input_chunk_length=pred_len + 1,
@@ -50,24 +53,28 @@ def eval_model(
     https://unit8co.github.io/darts/generated_api/darts.models.forecasting.tcn_model.html#darts.models.forecasting.tcn_model.TCNModel.predict
 
     """
-    # pred_len = len(val_covar)
     pred_len = model.output_chunk_length
     prediction = model.predict(
         n=pred_len, series=train_target, past_covariates=train_covar
     )
 
+    prediction = KalmanFilter(P=1000.0, R=50, Q=1).filter(prediction)
+
     prediction = align_prediction(
         coin.scaled_covars, prediction, align_with="close", idx=len(train_target)
     )
+    # prediction += (val_target.first_value() - prediction.first_value()) # todo
+
     coin.prediction = prediction
 
-    coin.mape = mape(actual_series=val_target, pred_series=prediction)
+    coin.mse = mse(actual_series=val_target, pred_series=prediction)
     coin.ope = ope(val_target, prediction)
 
     if plot:
         coin.scaled_covars["close"].plot(new_plot=True, label="Past")
-        prediction[coin.target_var].plot(label="Forecast")
-    return coin.mape
+        prediction.plot(label="Forecast")
+        val_target.plot(label="Past Kalman")
+    return coin.ope
 
 
 def backtest_model(model, train, scaled, target_var, target_var_idx):
@@ -104,21 +111,22 @@ def predict(model, coin, plot=False):
         verbose=True,
     )
 
+    prediction = KalmanFilter(P=1000.0, R=50, Q=1).filter(prediction)
     prediction = align_prediction(coin.scaled_covars, prediction, align_with="close")
     coin.prediction = prediction
 
-    plot = True
     if plot:
         coin.scaled_covars["close"].plot(new_plot=True, label="Past")
-        prediction[coin.target_var].plot(label="Forecast")
+        prediction.plot(label="Forecast")
 
     return prediction
 
 
 def align_prediction(scaled, prediction, align_with="close", idx=-1):
-    # align without removing other pred columns
-    value_at_first_step = float(scaled[align_with][idx].values())
-    prediction = prediction.rescale_with_value(value_at_first_step)
+    if align_with in scaled.columns:
+        # align without removing other pred columns
+        value_at_first_step = float(scaled[align_with][idx].values())
+        prediction = prediction.rescale_with_value(value_at_first_step)
     return prediction
 
 
@@ -146,7 +154,7 @@ def train_pipeline(coin, validate_model=False, plot=False, forecast_len=0.1):
             coin.scaled_target,
             coin.target_var,
             coin,
-            plot=False,
+            plot=plot,
         )
 
     else:
