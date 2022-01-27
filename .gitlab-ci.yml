@@ -50,7 +50,7 @@ backend-deploy:
   only:
     - main
 
-frontend-deploy:
+frontend-deploy-cloudfront:
   stage: deploy
   extends:
     - .frontend-variables
@@ -60,7 +60,7 @@ frontend-deploy:
     - main
     - devtest
 
-deploy-frontend:
+frontend-deploy-s3:
   image:
     name: amazon/aws-cli
     entrypoint: [""]
@@ -70,7 +70,7 @@ deploy-frontend:
     - devtest
   before_script:
     - aws --version
-  
+
   script:
     - aws s3 sync ./frontend/dist/ $AWS_S3_URL --delete
     - distributionId=$(aws cloudformation describe-stacks --stack-name stonk-pix-frontend-int --query "Stacks[0].Outputs[?OutputKey=='CloudFrontDistributionID'].OutputValue" --output text)

@@ -47,7 +47,6 @@ const Home = () => {
           </a>
         )}
       </div>
-
       <ul>
         {coinList.map(function (coin, index) {
           return (
@@ -57,7 +56,7 @@ const Home = () => {
           );
         })}
       </ul>
-
+      ...
       {SHOW_FEEDBACK_FORM && <FeedbackForm />}
     </div>
   );
