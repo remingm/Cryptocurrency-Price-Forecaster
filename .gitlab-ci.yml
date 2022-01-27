@@ -29,6 +29,7 @@ build-frontend:
   stage: build
   only:
     - main
+    - devtest
   script:
     - cd ./frontend/
     - npm install
@@ -36,7 +37,7 @@ build-frontend:
   artifacts:
     paths:
       - frontend/dist
-    expire_in: 1 hour    
+    expire_in: 1 hour
 
 backend-deploy:
   stage: deploy
@@ -49,7 +50,7 @@ backend-deploy:
   only:
     - main
 
-frontend-deploy:
+frontend-deploy-cloudfront:
   stage: deploy
   extends:
     - .frontend-variables
@@ -57,18 +58,23 @@ frontend-deploy:
     - .deploy
   only:
     - main
+    - devtest
 
-deploy-frontend:
+frontend-deploy-s3:
   image:
     name: amazon/aws-cli
     entrypoint: [""]
   stage: post-deploy
   only:
     - main
+    - devtest
   before_script:
     - aws --version
+
   script:
     - aws s3 sync ./frontend/dist/ $AWS_S3_URL --delete
+    - distributionId=$(aws cloudformation describe-stacks --stack-name stonk-pix-frontend-int --query "Stacks[0].Outputs[?OutputKey=='CloudFrontDistributionID'].OutputValue" --output text)
+    - aws cloudfront create-invalidation --distribution-id $distributionId --paths /*
 
 ml-backend-deploy:
   stage: deploy
