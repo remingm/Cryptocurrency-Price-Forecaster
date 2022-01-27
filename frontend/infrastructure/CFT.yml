@@ -62,3 +62,7 @@ Resources:
                 - !Ref Environment
                 - ".s3.us-west-2.amazonaws.com"
           Prefix: "cloudfront-access-logs"
+Outputs:
+  CloudFrontDistributionID:
+    Description: "CloudFront distribution ID"
+    Value: !Ref CFDistribution
