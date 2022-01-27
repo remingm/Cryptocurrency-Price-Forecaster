@@ -1,22 +1,54 @@
 import React, { useState } from "react";
 import * as EmailValidator from "email-validator";
+import emailjs, { init } from "@emailjs/browser";
+init("user_8SUqiYZQ3hQTSK8GWDtSV");
 
-function formSubmit(e: React.SyntheticEvent): void {
+interface TemplateParams {
+  email: string;
+  feedback: string;
+  appname: string;
+}
+
+function formSubmit(
+  e: React.SyntheticEvent,
+  setEmailSubmitted: React.Dispatch<React.SetStateAction<boolean>>
+): void {
   const formVals = processReactEvent(e);
-  console.log("TODO: submit these values as an email:");
-  console.log(formVals.emailaddr);
-  console.log(formVals.feedback);
+
+  const params: TemplateParams = {
+    email: formVals.emailaddr !== "" ? formVals.emailaddr : "< no email given>",
+    feedback: formVals.feedback,
+    appname: "stonkpix",
+  };
+
+  emailjs
+    .send(
+      "service_3dckhyg",
+      "template_938lh7g",
+      params as unknown as Record<string, string>
+    )
+    .then(
+      function (response) {
+        console.log("SUCCESS!", response.status, response.text);
+        setEmailSubmitted(true);
+      },
+      function (error) {
+        console.log("FAILED...", error);
+      }
+    );
 }
 
 function validateEmail(
   e: React.SyntheticEvent,
-  setEmailValid: React.Dispatch<React.SetStateAction<boolean>>
+  setEmailValid: React.Dispatch<React.SetStateAction<boolean>>,
+  setEmailSubmitted: React.Dispatch<React.SetStateAction<boolean>>
 ): void {
   const formVals = processReactEvent(e);
   setEmailValid(
     EmailValidator.validate(formVals.emailaddr) ||
       formVals.emailaddr.length === 0
   );
+  setEmailSubmitted(false);
 }
 
 type FormValues = {
@@ -39,6 +71,7 @@ function processReactEvent(e: React.SyntheticEvent): FormValues {
 
 function FeedbackForm() {
   const [emailValid, setEmailValid] = useState(true);
+  const [emailSubmitted, setEmailSubmitted] = useState(false);
 
   return (
     <div className="mt-10 sm:mt-0 mx-8">
@@ -55,9 +88,11 @@ function FeedbackForm() {
         </div>
         <div className="mt-5 md:mt-0 md:col-span-2">
           <form
-            onSubmit={formSubmit}
+            onSubmit={(e: React.SyntheticEvent) =>
+              formSubmit(e, setEmailSubmitted)
+            }
             onChange={(e: React.SyntheticEvent) =>
-              validateEmail(e, setEmailValid)
+              validateEmail(e, setEmailValid, setEmailSubmitted)
             }
           >
             <div className="shadow overflow-hidden sm:rounded-md">
@@ -81,7 +116,7 @@ function FeedbackForm() {
                       <p className="mt-2 text-sm text-red-500">Invalid Email</p>
                     )}
                   </div>
-                  <div className="sm:col-span-6">
+                  <div className="col-span-6 sm:col-span-4">
                     <label
                       htmlFor="Feedback"
                       className="block text-sm font-medium text-gray-700"
@@ -101,8 +136,17 @@ function FeedbackForm() {
                 </div>
               </div>
               <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
-                <button className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                  Submit
+                <button
+                  className={
+                    "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white " +
+                    (emailSubmitted
+                      ? "bg-indigo-300"
+                      : "bg-indigo-600 hover:bg-indigo-700") +
+                    " focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  }
+                  disabled={emailSubmitted}
+                >
+                  {emailSubmitted ? "Success!" : "Submit"}
                 </button>
               </div>
             </div>
