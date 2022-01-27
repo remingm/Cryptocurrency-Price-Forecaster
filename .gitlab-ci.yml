@@ -29,7 +29,6 @@ build-frontend:
   stage: build
   only:
     - main
-    - devtest
   script:
     - cd ./frontend/
     - npm install
@@ -52,25 +51,29 @@ backend-deploy:
 
 frontend-deploy-cloudfront:
   stage: deploy
+  needs:
+    - build-frontend
   extends:
     - .frontend-variables
     - .int-environment
     - .deploy
   only:
     - main
-    - devtest
 
 frontend-deploy-s3:
   image:
     name: amazon/aws-cli
     entrypoint: [""]
   stage: post-deploy
+  needs:
+    - build-frontend
+    - frontend-deploy-cloudfront
+  dependencies:
+    - build-frontend
   only:
     - main
-    - devtest
   before_script:
     - aws --version
-
   script:
     - aws s3 sync ./frontend/dist/ $AWS_S3_URL --delete
     - distributionId=$(aws cloudformation describe-stacks --stack-name stonk-pix-frontend-int --query "Stacks[0].Outputs[?OutputKey=='CloudFrontDistributionID'].OutputValue" --output text)
