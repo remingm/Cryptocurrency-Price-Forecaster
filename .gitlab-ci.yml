@@ -37,7 +37,7 @@ build-frontend:
   artifacts:
     paths:
       - frontend/dist
-    expire_in: 1 hour    
+    expire_in: 1 hour
 
 backend-deploy:
   stage: deploy
@@ -52,14 +52,13 @@ backend-deploy:
 
 frontend-deploy:
   stage: deploy
-  only:
-    - devtest
   extends:
     - .frontend-variables
     - .int-environment
     - .deploy
   only:
     - main
+    - devtest
 
 deploy-frontend:
   image:
