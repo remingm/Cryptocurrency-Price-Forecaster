@@ -70,11 +70,11 @@ deploy-frontend:
     - devtest
   before_script:
     - aws --version
-  variables:
-    - DISTRIBUTION_ID: aws cloudformation describe-stacks --stack-name stonk-pix-frontend-int --query "Stacks[0].Outputs[?OutputKey=='CloudFrontDistributionID'].OutputValue" --output text
+  
   script:
     - aws s3 sync ./frontend/dist/ $AWS_S3_URL --delete
-    - aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths /*
+    - distributionId=$(aws cloudformation describe-stacks --stack-name stonk-pix-frontend-int --query "Stacks[0].Outputs[?OutputKey=='CloudFrontDistributionID'].OutputValue" --output text)
+    - aws cloudfront create-invalidation --distribution-id $distributionId --paths /*
 
 ml-backend-deploy:
   stage: deploy
