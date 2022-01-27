@@ -77,7 +77,7 @@ frontend-deploy-s3:
   script:
     - aws s3 sync ./frontend/dist/ $AWS_S3_URL --delete
     - distributionId=$(aws cloudformation describe-stacks --stack-name stonk-pix-frontend-int --query "Stacks[0].Outputs[?OutputKey=='CloudFrontDistributionID'].OutputValue" --output text)
-    - aws cloudfront create-invalidation --distribution-id $distributionId --paths /*
+    - aws cloudfront create-invalidation --distribution-id $distributionId --paths /index.html
 
 ml-backend-deploy:
   stage: deploy
