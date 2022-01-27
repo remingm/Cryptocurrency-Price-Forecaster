@@ -1,3 +1,4 @@
+import FeedbackForm from "../components/FeedbackForm";
 import Coin from "../models/CoinModel";
 import CoinDisplayComponent from "./Coin/CoinDisplayComponent";
 const today = new Date();
@@ -20,9 +21,11 @@ const coinList = [
   "XRP-USD/1d",
   "MANA-USD/1d",
   "BCH-USD/1d",
-//   "SHIB-USD/1d",
+  //   "SHIB-USD/1d",
   "LTC-USD/1d",
 ];
+
+const SHOW_FEEDBACK_FORM = false; // feature flag until works
 
 const Home = () => {
   return (
@@ -54,6 +57,8 @@ const Home = () => {
           );
         })}
       </ul>
+
+      {SHOW_FEEDBACK_FORM && <FeedbackForm />}
     </div>
   );
 };
