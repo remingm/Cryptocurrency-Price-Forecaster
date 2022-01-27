@@ -58,7 +58,6 @@ type FormValues = {
 
 function processReactEvent(e: React.SyntheticEvent): FormValues {
   e.preventDefault();
-  console.log(e);
   const target = e.currentTarget as typeof e.currentTarget & {
     emailaddr: { value: string };
     feedback: { value: string };
