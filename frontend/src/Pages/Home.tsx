@@ -11,21 +11,30 @@ const date = mm + "/" + dd + "/" + yyyy;
 // TODO: get from /api/v1/coins/ endpoint
 const coinList = [
   "BTC-USD/1d",
+  "BTC-USD/1h",
   "DOT-USD/1d",
+  "DOT-USD/1h",
   "XMR-USD/1d",
+  "XMR-USD/1h",
   "ADA-USD/1d",
+  "ADA-USD/1h",
   "SOL-USD/1d",
+  "SOL-USD/1h",
   "ALGO-USD/1d",
+  "ALGO-USD/1h",
   "ETH-USD/1d",
+  "ETH-USD/1h",
   "DOGE-USD/1d",
+  "DOGE-USD/1h",
   "XRP-USD/1d",
+  "XRP-USD/1h",
   "MANA-USD/1d",
+  "MANA-USD/1h",
   "BCH-USD/1d",
-  //   "SHIB-USD/1d",
+  "BCH-USD/1h",
   "LTC-USD/1d",
+  "LTC-USD/1h",
 ];
-
-const SHOW_FEEDBACK_FORM = false; // feature flag until works
 
 const Home = () => {
   return (
@@ -56,8 +65,7 @@ const Home = () => {
           );
         })}
       </ul>
-      ...
-      {SHOW_FEEDBACK_FORM && <FeedbackForm />}
+      <FeedbackForm />
     </div>
   );
 };

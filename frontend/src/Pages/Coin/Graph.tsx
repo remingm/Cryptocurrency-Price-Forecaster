@@ -63,8 +63,21 @@ const Graph = (props: graphProps) => {
 
 function getGraphablePrices(prices: Price[]): Price[] {
   return prices.map((price) => {
+    const date = new Date(Number(price.timestamp));
+    const dateStr =
+      date.getDate() +
+      "/" +
+      (date.getMonth() + 1) +
+      "/" +
+      date.getFullYear() +
+      " " +
+      date.getHours() +
+      ":" +
+      date.getMinutes() +
+      ":" +
+      date.getSeconds();
     return {
-      timestamp: new Date(Number(price.timestamp)).toLocaleDateString("en-US"),
+      timestamp: dateStr,
       close: price.close,
     };
   });
