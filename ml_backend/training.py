@@ -74,7 +74,7 @@ def eval_model(
         coin.scaled_covars["close"].plot(new_plot=True, label="Past")
         prediction.plot(label="Forecast")
         val_target.plot(label="Past Kalman")
-    return coin.ope
+    return coin.mse
 
 
 def backtest_model(model, train, scaled, target_var, target_var_idx):
@@ -145,7 +145,7 @@ def train_pipeline(coin, validate_model=False, plot=False, forecast_len=0.1):
         model = train_model(
             train_target, train_covar, val_target, val_covar, forecast_len=forecast_len
         )
-        mape = eval_model(
+        error = eval_model(
             model,
             train_target,
             val_target,
@@ -158,7 +158,7 @@ def train_pipeline(coin, validate_model=False, plot=False, forecast_len=0.1):
         )
 
     else:
-        mape = -1
+        error = -1
 
     # Retrain on all data and predict
     model = train_model(
@@ -166,4 +166,4 @@ def train_pipeline(coin, validate_model=False, plot=False, forecast_len=0.1):
     )
     prediction = predict(model, coin, plot=plot)
 
-    return prediction, mape
+    return prediction, error
