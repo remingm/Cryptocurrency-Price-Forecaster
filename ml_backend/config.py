@@ -15,7 +15,7 @@ COINS = [
 ]
 
 # Allowed time periods: '1m','5m','15m','30m','1h','4h','1d','1w','2w'
-TIMEPERIODS = ["1d", "1h"]
-SLEEP_TIME = 60 * 15
-VALIDATE = True
+TIMEPERIODS = ["1d"]
+SLEEP_TIME = 60 * 60
+VALIDATE = False
 FORECAST_LEN = 0.05
