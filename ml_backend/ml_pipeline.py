@@ -35,7 +35,7 @@ def ml_pipeline(coin, validate=False, forecast_len=0.1, plot=False):
     print("Success", coin.symbol, coin.period)
     print("Training model for", coin)
     prediction, backtest_mape = train_pipeline(
-        coin, validate_model=validate, plot=False, forecast_len=forecast_len
+        coin, validate_model=validate, plot=plot, forecast_len=forecast_len
     )
     coin.backtest_mape = backtest_mape
     coin.prediction = prediction
@@ -56,13 +56,15 @@ def make_coins_set(COINS, TIMEPERIODS, target_var="close"):
     return coins
 
 
-def main_ml_loop(coins, SLEEP_TIME, validate, forecast_len):
+def main_ml_loop(coins, SLEEP_TIME, validate, forecast_len, plot=False):
     processed = set()
     while len(coins) > 0:
         coin = coins.pop()
         if coin.check_compute_time():
             print(f"Timedelta expired, computing {coin}")
-            coin = ml_pipeline(coin, validate=validate, forecast_len=forecast_len)
+            coin = ml_pipeline(
+                coin, validate=validate, forecast_len=forecast_len, plot=plot
+            )
         else:
             print(f"Timedelta has not yet expired for {coin}")
 
@@ -80,5 +82,5 @@ if __name__ == "__main__":
     coins = make_coins_set(COINS, TIMEPERIODS, target_var="kalman")
     while True:
         coins = main_ml_loop(
-            coins, SLEEP_TIME, validate=VALIDATE, forecast_len=FORECAST_LEN
+            coins, SLEEP_TIME, validate=VALIDATE, forecast_len=FORECAST_LEN, plot=False
         )
