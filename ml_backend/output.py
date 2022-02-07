@@ -97,6 +97,7 @@ def write_to_db(forecasts, DB_NAME):
             pprint.pprint(c.keys())
 
 
+# todo write past prediction from validation
 def output_pipeline(DB_NAME, coin):
     past_close, prediction = reverse_transform(coin)
     coin.past_close, coin.prediction = format_timestamp_index(
