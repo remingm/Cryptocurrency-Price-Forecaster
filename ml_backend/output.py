@@ -10,6 +10,10 @@ def reverse_transform(coin):
     # past_close = coin.scaler.inverse_transform(coin.scaled)["close"].pd_dataframe()
     past_close = coin.df["close"]
     prediction = coin.scaler.inverse_transform(coin.prediction).pd_dataframe()
+    if hasattr(coin, "val_prediction"):
+        coin.val_prediction = coin.scaler.inverse_transform(
+            coin.val_prediction
+        ).pd_dataframe()
 
     return past_close, prediction
 
@@ -29,7 +33,16 @@ def format_timestamp_index(past_close, df, prediction):
     return past_close, prediction
 
 
-def format_json(symbol, period, past_close, prediction, backtest_mape, target_var):
+def format_json(
+    symbol,
+    period,
+    past_close,
+    prediction,
+    backtest_mape,
+    target_var,
+    coin,
+    validate=False,
+):
     return_dict = {
         "symbol": symbol,
         "past": json.loads(past_close.to_json()),
@@ -37,6 +50,9 @@ def format_json(symbol, period, past_close, prediction, backtest_mape, target_va
         "period": period,
         "MAPE": backtest_mape,
     }
+
+    if validate:
+        return_dict["val_prediction"] = json.loads(coin.val_prediction.to_json())
 
     # [{
     #     "time": 12345,
@@ -98,11 +114,17 @@ def write_to_db(forecasts, DB_NAME):
 
 
 # todo write past prediction from validation
-def output_pipeline(DB_NAME, coin):
+def output_pipeline(DB_NAME, coin, validate=False):
     past_close, prediction = reverse_transform(coin)
     coin.past_close, coin.prediction = format_timestamp_index(
         past_close, coin.df, prediction
     )
+    if hasattr(coin, "val_prediction"):
+        _, coin.val_prediction = format_timestamp_index(
+            coin.df["close"][: -len(coin.val_prediction)],
+            coin.df[: -len(coin.val_prediction)],
+            coin.val_prediction,
+        )
     coin.return_dict = format_json(
         coin.symbol,
         coin.period,
@@ -110,6 +132,8 @@ def output_pipeline(DB_NAME, coin):
         coin.prediction,
         coin.backtest_mape,
         coin.target_var,
+        coin,
+        validate,
     )
     try:
         write_to_db([coin.return_dict], DB_NAME)
