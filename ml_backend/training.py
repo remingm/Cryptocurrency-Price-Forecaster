@@ -65,7 +65,7 @@ def eval_model(
     )
     # prediction += (val_target.first_value() - prediction.first_value()) # todo
 
-    coin.prediction = prediction
+    coin.val_prediction = prediction
 
     coin.mse = mse(actual_series=val_target, pred_series=prediction)
     coin.ope = ope(val_target, prediction)

@@ -41,7 +41,7 @@ def ml_pipeline(coin, validate=False, forecast_len=0.1, plot=False):
     coin.prediction = prediction
     coin.last_compute = datetime.datetime.utcnow()
     print("Running output pipeline for", coin)
-    coin = output_pipeline(DB_NAME, coin)
+    coin = output_pipeline(DB_NAME, coin, validate)
     return coin
 
 
@@ -84,3 +84,6 @@ if __name__ == "__main__":
         coins = main_ml_loop(
             coins, SLEEP_TIME, validate=VALIDATE, forecast_len=FORECAST_LEN, plot=False
         )
+        import pickle
+
+        pickle.dump(coins, open("coins.pkl", "wb"))
