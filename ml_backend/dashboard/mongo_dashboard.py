@@ -36,11 +36,17 @@ if __name__ == "__main__":
     df = df.drop(columns="_id")
     symbol = st.selectbox("Coin", df["symbol"].values, index=1)
     period = st.selectbox("Period", set(df["period"].values))
+
     coin_df = df.query(f'symbol=="{symbol}" and period=="{period}"')
     past = pd.DataFrame.from_dict(coin_df.past.values[0]).set_index("timestamp")
     past = past.set_index(pd.to_datetime(past.index))
     st.write(coin_df)
-    st.line_chart(past)
     pred = pd.DataFrame.from_dict(coin_df.prediction.values[0]).set_index("timestamp")
     pred = pred.set_index(pd.to_datetime(pred.index))
-    st.line_chart(pred)
+
+    pred = pred.rename(columns={'close':'forecast'})
+    both = past.append(pred)
+    st.line_chart(both)
+
+    val_prediction = coin_df['val_prediction'].iloc[0]
+    st.line_chart(val_prediction)
